@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BandUpBD — IELTS Complete Resource</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:       #060e18;
+  --bg2:      #0b1929;
+  --bg3:      #0f2236;
+  --border:   #152d47;
+  --border2:  #1e4166;
+  --accent:   #4a8fff;
+  --accent-h: #74aaff;
+  --amber:    #f59e0b;
+  --amber-l:  #fbbf47;
+  --text:     #dce8f5;
+  --text2:    #7fa5c5;
+  --text3:    #3d6080;
+  --green:    #22c55e;
+  --green-l:  #4ade80;
+  --purple:   #9b7bff;
+  --purple-l: #b8a2ff;
+  --gold:     #fbbf24;
+  --red:      #f87171;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:      #f2f6fc;
+    --bg2:     #ffffff;
+    --bg3:     #e8f0fb;
+    --border:  #cdd9f0;
+    --border2: #a8bfe8;
+    --accent:  #1d4ed8;
+    --accent-h:#1e40af;
+    --amber:   #b45309;
+    --amber-l: #d97706;
+    --text:    #0d1f33;
+    --text2:   #2d4f6e;
+    --text3:   #7a9bb5;
+    --green:   #15803d;
+    --green-l: #166534;
+    --purple:  #6d28d9;
+    --purple-l:#7c3aed;
+    --gold:    #b45309;
+    --red:     #b91c1c;
+  }
+}
+[data-theme="dark"] {
+  --bg:#060e18;--bg2:#0b1929;--bg3:#0f2236;--border:#152d47;--border2:#1e4166;
+  --accent:#4a8fff;--accent-h:#74aaff;--amber:#f59e0b;--amber-l:#fbbf47;
+  --text:#dce8f5;--text2:#7fa5c5;--text3:#3d6080;
+  --green:#22c55e;--green-l:#4ade80;--purple:#9b7bff;--purple-l:#b8a2ff;
+  --gold:#fbbf24;--red:#f87171;
+}
+[data-theme="light"] {
+  --bg:#f2f6fc;--bg2:#ffffff;--bg3:#e8f0fb;--border:#cdd9f0;--border2:#a8bfe8;
+  --accent:#1d4ed8;--accent-h:#1e40af;--amber:#b45309;--amber-l:#d97706;
+  --text:#0d1f33;--text2:#2d4f6e;--text3:#7a9bb5;
+  --green:#15803d;--green-l:#166534;--purple:#6d28d9;--purple-l:#7c3aed;
+  --gold:#b45309;--red:#b91c1c;
+}
+
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background .2s, color .2s;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 100;
+  height: 64px; padding: 0 clamp(16px, 5vw, 60px);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-size: 20px; font-weight: 900; letter-spacing: -.03em;
+  text-decoration: none; white-space: nowrap;
+  background: linear-gradient(135deg, var(--amber), var(--amber-l));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.theme-btn {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg2); border: 1px solid var(--border2);
+  cursor: pointer; font-size: 17px; transition: border-color .15s;
+  flex-shrink: 0;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.nav-band {
+  font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--gold), var(--amber)); color: #fff;
+  letter-spacing: .02em; white-space: nowrap;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative; overflow: hidden;
+  padding: clamp(56px, 10vw, 110px) clamp(16px, 5vw, 60px) clamp(48px, 8vw, 88px);
+  border-bottom: 1px solid var(--border);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 52px 52px; opacity: .13;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, black 20%, transparent 100%);
+}
+.hero-glow {
+  position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--accent) 14%, transparent), transparent 68%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; max-width: 760px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--amber-l); margin-bottom: 24px;
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 22%, transparent);
+  border-radius: 6px; padding: 6px 14px;
+}
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+.hero h1 {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: 900; line-height: .97; letter-spacing: -.04em;
+  margin-bottom: 12px; color: var(--text);
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--accent), var(--purple-l));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-author { font-size: 15px; color: var(--text2); margin-bottom: 20px; }
+.hero-author strong { color: var(--text); font-weight: 600; }
+.hero-desc {
+  font-size: clamp(15px, 2vw, 18px); line-height: 1.65;
+  color: var(--text2); max-width: 560px; margin-bottom: 40px;
+}
+.hero-stats {
+  display: flex; flex-wrap: wrap; gap: 0;
+  border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  width: fit-content; max-width: 100%;
+}
+.stat { padding: 18px clamp(16px, 3vw, 32px); border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-num { font-size: clamp(20px, 3vw, 26px); font-weight: 800; color: var(--text); letter-spacing: -.02em; line-height: 1; }
+.stat-label { font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: .04em; margin-top: 4px; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 16px clamp(16px, 5vw, 60px);
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.filter-label { font-size: 13px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid; cursor: pointer; transition: all .15s; background: transparent;
+  font-family: 'Inter', sans-serif;
+}
+.chip.on  { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.chip.off { color: var(--text3); border-color: var(--border); }
+.chip:hover { border-color: var(--accent); color: var(--accent-h); }
+
+/* ── MAIN ── */
+main { max-width: 1140px; margin: 0 auto; padding: clamp(28px, 4vw, 56px) clamp(16px, 5vw, 60px); }
+
+/* ── SECTION GROUP ── */
+.sg { margin-bottom: 56px; }
+.sg.hidden { display: none; }
+.sg-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sg-icon {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.sg-info { flex: 1; }
+.sg-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -.01em; }
+.sg-desc { font-size: 14px; color: var(--text3); margin-top: 3px; }
+.sg-badge {
+  font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 6px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.sg-badge.live { background: color-mix(in srgb, var(--green) 15%, transparent); color: var(--green-l); border: 1px solid color-mix(in srgb, var(--green) 25%, transparent); }
+.sg-badge.soon { background: var(--border); color: var(--text3); }
+
+/* ── CARD GRID ── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+
+/* ── GUIDE CARD ── */
+.guide-card {
+  display: block; text-decoration: none; position: relative; overflow: hidden;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px;
+  transition: border-color .2s, transform .2s, box-shadow .2s, background .2s;
+}
+.guide-card:hover {
+  border-color: var(--card-c, var(--accent));
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0,0,0,.3);
+  background: var(--bg3);
+}
+.guide-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--card-c, var(--accent)); opacity: 0; transition: opacity .2s;
+}
+.guide-card:hover::after { opacity: 1; }
+.card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--card-c, var(--accent));
+  background: color-mix(in srgb, var(--card-c, var(--accent)) 13%, transparent);
+  padding: 4px 10px; border-radius: 5px;
+}
+.card-status-live {
+  font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 5px;
+  background: color-mix(in srgb, var(--green) 15%, transparent);
+  color: var(--green-l); border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
+}
+.card-title { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.35; margin-bottom: 9px; }
+.card-desc { font-size: 14px; color: var(--text2); line-height: 1.65; margin-bottom: 18px; }
+.card-footer { display: flex; align-items: center; justify-content: space-between; }
+.card-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-chip {
+  font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px;
+  background: var(--border); color: var(--text3);
+}
+.card-arrow { font-size: 20px; color: var(--text3); transition: color .2s, transform .2s; line-height: 1; }
+.guide-card:hover .card-arrow { color: var(--card-c, var(--accent)); transform: translate(3px, -2px); }
+
+/* ── SOON CARD ── */
+.soon-card {
+  background: transparent; border: 1px dashed var(--border);
+  border-radius: 16px; padding: 20px 22px;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color .15s;
+}
+.soon-card:hover { border-color: var(--border2); }
+.soon-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.soon-title { font-size: 15px; font-weight: 600; color: var(--text2); }
+.soon-sub { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+/* ── BAND TRACKER ── */
+.tracker {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 18px; padding: clamp(20px, 4vw, 36px); margin-bottom: 56px;
+}
+.tracker-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.tracker-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -.01em; }
+.tracker-target {
+  font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--gold), var(--amber)); color: #fff;
+}
+.tracker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+.tracker-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.ti-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ti-label { font-size: 14px; font-weight: 600; color: var(--text2); }
+.ti-score { font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+.ti-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.ti-fill { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+.ti-status { font-size: 12px; color: var(--text3); margin-top: 8px; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px clamp(16px, 5vw, 60px);
+  display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+}
+.f-brand {
+  font-size: 24px; font-weight: 900; letter-spacing: -.03em;
+  background: linear-gradient(135deg, var(--amber), var(--amber-l));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 4px;
+}
+.f-name { font-size: 14px; color: var(--text2); margin-bottom: 8px; }
+.f-desc { font-size: 13px; color: var(--text3); line-height: 1.65; max-width: 400px; }
+.f-pill {
+  font-size: 28px; font-weight: 900; padding: 10px 22px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--amber)); color: #fff;
+  letter-spacing: -.02em; white-space: nowrap;
+}
+
+/* ── PROGRESS ── */
+.progress-bar {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 14px clamp(16px, 5vw, 60px);
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.prog-label { font-size: 13px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+.prog-track { flex: 1; min-width: 120px; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple-l)); border-radius: 99px; transition: width .8s ease; }
+.prog-pct { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .hero-stats { width: 100%; }
+  .stat { flex: 1; min-width: 0; }
+  footer { grid-template-columns: 1fr; }
+  .f-pill { font-size: 22px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .tracker-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 380px) {
+  .tracker-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">BandUpBD</a>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+    <span class="nav-band">Band 8+</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><span class="pulse"></span>BandUpBD · IELTS Preparation</div>
+    <h1>Score higher.<br><span class="grad">Band 8+ অর্জন করুন।</span></h1>
+    <p class="hero-author">by <strong>Habibur Rahman Sajal</strong></p>
+    <p class="hero-desc">সম্পূর্ণ IELTS প্রস্তুতির জন্য বাংলা অর্থসহ guides, vocabulary, grammar rules এবং Cambridge examples — সব এক জায়গায়।</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num" id="liveCount">2</div>
+        <div class="stat-label">Live Guides</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">26</div>
+        <div class="stat-label">Planned</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Band 8+</div>
+        <div class="stat-label">Target Score</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Free</div>
+        <div class="stat-label">Always Free</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <span class="prog-label">Overall progress</span>
+  <div class="prog-track"><div class="prog-fill" style="width:8%"></div></div>
+  <span class="prog-pct">2 / 26 guides</span>
+</div>
+
+<!-- FILTER -->
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <div class="filter-chips">
+    <button class="chip on"  data-f="all"       onclick="filter('all',this)">All</button>
+    <button class="chip off" data-f="writing"   onclick="filter('writing',this)">Writing</button>
+    <button class="chip off" data-f="reading"   onclick="filter('reading',this)">Reading</button>
+    <button class="chip off" data-f="listening" onclick="filter('listening',this)">Listening</button>
+    <button class="chip off" data-f="speaking"  onclick="filter('speaking',this)">Speaking</button>
+    <button class="chip off" data-f="grammar"   onclick="filter('grammar',this)">Grammar</button>
+  </div>
+</div>
+
+<main>
+
+<!-- BAND TRACKER -->
+<div class="tracker">
+  <div class="tracker-top">
+    <div class="tracker-title">Band Score Tracker</div>
+    <div class="tracker-target">🎯 Target: Band 8+</div>
+  </div>
+  <div class="tracker-grid">
+    <div class="tracker-item">
+      <div class="ti-top"><span class="ti-label">Writing</span><span class="ti-score" style="color:#4a8fff">8+</span></div>
+      <div class="ti-bar"><div class="ti-fill" data-w="90%" style="width:0;background:#4a8fff"></div></div>
+      <div class="ti-status">Task 1 & Task 2 mastery needed</div>
+    </div>
+    <div class="tracker-item">
+      <div class="ti-top"><span class="ti-label">Reading</span><span class="ti-score" style="color:#22c55e">8+</span></div>
+      <div class="ti-bar"><div class="ti-fill" data-w="90%" style="width:0;background:#22c55e"></div></div>
+      <div class="ti-status">Speed + accuracy strategy</div>
+    </div>
+    <div class="tracker-item">
+      <div class="ti-top"><span class="ti-label">Listening</span><span class="ti-score" style="color:#9b7bff">8+</span></div>
+      <div class="ti-bar"><div class="ti-fill" data-w="90%" style="width:0;background:#9b7bff"></div></div>
+      <div class="ti-status">Note-taking + distractor skills</div>
+    </div>
+    <div class="tracker-item">
+      <div class="ti-top"><span class="ti-label">Speaking</span><span class="ti-score" style="color:#f59e0b">8+</span></div>
+      <div class="ti-bar"><div class="ti-fill" data-w="90%" style="width:0;background:#f59e0b"></div></div>
+      <div class="ti-status">Fluency + lexical resource</div>
+    </div>
+  </div>
+</div>
+
+<!-- WRITING TASK 1 -->
+<div class="sg" data-s="writing" id="writing">
+  <div class="sg-header">
+    <div class="sg-icon" style="background:color-mix(in srgb,#4a8fff 15%,transparent)">📝</div>
+    <div class="sg-info">
+      <div class="sg-title">Writing Task 1</div>
+      <div class="sg-desc">Graph, chart, diagram ও process description guides — Bangla অর্থসহ</div>
+    </div>
+    <div class="sg-badge live">2 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <a class="guide-card" href="Writing Task 1/line-graph.html" style="--card-c:#4a8fff">
+      <div class="card-top"><span class="card-tag">Line Graph</span><span class="card-status-live">Live</span></div>
+      <div class="card-title">Line Graph — Complete Writing Guide</div>
+      <div class="card-desc">V1/V2/V3 vocabulary, tense rules, all sentence types, active/passive — Cambridge examples ও Bangla অর্থসহ।</div>
+      <div class="card-footer">
+        <div class="card-chips"><span class="card-chip">Vocabulary</span><span class="card-chip">Grammar</span><span class="card-chip">Tense</span></div>
+        <span class="card-arrow">↗</span>
+      </div>
+    </a>
+    <a class="guide-card" href="Writing Task 1/bar-chart.html" style="--card-c:#22c55e">
+      <div class="card-top"><span class="card-tag">Bar Chart</span><span class="card-status-live">Live</span></div>
+      <div class="card-title">Bar Chart — Complete Writing Guide</div>
+      <div class="card-desc">Comparison language, ranking structures, static vs dynamic chart — Cambridge examples ও Bangla অর্থসহ।</div>
+      <div class="card-footer">
+        <div class="card-chips"><span class="card-chip">Comparison</span><span class="card-chip">Ranking</span><span class="card-chip">Vocabulary</span></div>
+        <span class="card-arrow">↗</span>
+      </div>
+    </a>
+    <div class="soon-card"><div class="soon-icon">🥧</div><div><div class="soon-title">Pie Chart Guide</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📋</div><div><div class="soon-title">Table Description</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔄</div><div><div class="soon-title">Process Diagram</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🗺️</div><div><div class="soon-title">Map Description</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- WRITING TASK 2 -->
+<div class="sg" data-s="writing">
+  <div class="sg-header">
+    <div class="sg-icon" style="background:color-mix(in srgb,#ec4899 15%,transparent)">✍️</div>
+    <div class="sg-info">
+      <div class="sg-title">Writing Task 2</div>
+      <div class="sg-desc">Essay types, argument structure ও Band 8 vocabulary</div>
+    </div>
+    <div class="sg-badge soon">0 live · 5 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">💬</div><div><div class="soon-title">Opinion Essay</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">⚖️</div><div><div class="soon-title">Discussion Essay</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔍</div><div><div class="soon-title">Problem-Solution Essay</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📐</div><div><div class="soon-title">Advantages & Disadvantages</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📌</div><div><div class="soon-title">Two-part Question Essay</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- READING -->
+<div class="sg" data-s="reading" id="reading">
+  <div class="sg-header">
+    <div class="sg-icon" style="background:color-mix(in srgb,#22c55e 15%,transparent)">📖</div>
+    <div class="sg-info">
+      <div class="sg-title">Reading</div>
+      <div class="sg-desc">Skimming, scanning, question strategies ও academic vocabulary</div>
+    </div>
+    <div class="sg-badge soon">0 live · 5 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">🎯</div><div><div class="soon-title">True / False / Not Given</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔗</div><div><div class="soon-title">Matching Headings</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">✏️</div><div><div class="soon-title">Summary Completion</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📝</div><div><div class="soon-title">Multiple Choice Strategy</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📚</div><div><div class="soon-title">Academic Word List</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- LISTENING -->
+<div class="sg" data-s="listening" id="listening">
+  <div class="sg-header">
+    <div class="sg-icon" style="background:color-mix(in srgb,#06b6d4 15%,transparent)">🎧</div>
+    <div class="sg-info">
+      <div class="sg-title">Listening</div>
+      <div class="sg-desc">Section types, note-taking strategies ও answer techniques</div>
+    </div>
+    <div class="sg-badge soon">0 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">📋</div><div><div class="soon-title">Form Completion</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🗂️</div><div><div class="soon-title">Multiple Choice</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🗺️</div><div><div class="soon-title">Map & Plan Labelling</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔢</div><div><div class="soon-title">Sentence Completion</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- SPEAKING -->
+<div class="sg" data-s="speaking" id="speaking">
+  <div class="sg-header">
+    <div class="sg-icon" style="background:color-mix(in srgb,#9b7bff 15%,transparent)">🗣️</div>
+    <div class="sg-info">
+      <div class="sg-title">Speaking</div>
+      <div class="sg-desc">Part 1, 2, 3 — fluency, coherence ও lexical resource strategies</div>
+    </div>
+    <div class="sg-badge soon">0 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">🙋</div><div><div class="soon-title">Part 1 — Introduction</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">💭</div><div><div class="soon-title">Part 2 — Cue Card</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🏆</div><div><div class="soon-title">Part 3 — Discussion</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🎤</div><div><div class="soon-title">Fluency & Pronunciation</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- GRAMMAR -->
+<div class="sg" data-s="grammar" id="grammar">
+  <div class="sg-header">
+    <div class="sg-icon" style="background:color-mix(in srgb,#f59e0b 15%,transparent)">📚</div>
+    <div class="sg-info">
+      <div class="sg-title">Grammar & Vocabulary</div>
+      <div class="sg-desc">Common grammar rules, word lists, collocations ও Bangla অর্থ</div>
+    </div>
+    <div class="sg-badge soon">0 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">🔤</div><div><div class="soon-title">Academic Word List</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">⏰</div><div><div class="soon-title">Tense Quick Reference</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔗</div><div><div class="soon-title">Linking Words Guide</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📖</div><div><div class="soon-title">Collocations Guide</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="f-brand">BandUpBD</div>
+    <div class="f-name">Habibur Rahman Sajal</div>
+    <div class="f-desc">সব guide বাংলা অর্থসহ তৈরি করা হয়েছে IELTS পরীক্ষার্থীদের জন্য। নতুন guide যোগ হলে এই page-এ update হবে।</div>
+  </div>
+  <div class="f-pill">Band 8+</div>
+</footer>
+
+<script>
+/* ── THEME ── */
+const btn = document.getElementById('themeBtn');
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  btn.textContent = t === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', t);
+}
+(function(){
+  const saved = localStorage.getItem('theme');
+  const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  applyTheme(saved || sys);
+})();
+function toggleTheme() {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+
+/* ── FILTER ── */
+function filter(val, el) {
+  document.querySelectorAll('.chip').forEach(c => { c.classList.remove('on'); c.classList.add('off'); });
+  el.classList.add('on'); el.classList.remove('off');
+  document.querySelectorAll('.sg').forEach(sg => {
+    sg.classList.toggle('hidden', val !== 'all' && sg.dataset.s !== val);
+  });
+}
+
+/* ── ANIMATE TRACKER BARS ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.width = e.target.dataset.w;
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: .3 });
+document.querySelectorAll('.ti-fill').forEach(b => obs.observe(b));
+</script>
+</body>
+</html>

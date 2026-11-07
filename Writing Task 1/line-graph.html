@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Line Graph Writing — BandUpBD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060e18;--bg2:#0b1929;--bg3:#0f2236;--bg4:#081421;
+  --border:#152d47;--border2:#1e4166;
+  --accent:#4a8fff;--accent-h:#74aaff;--accent-d:#2563eb;
+  --amber:#f5a623;--amber-l:#fbbf47;--amber-d:#c47d0e;--yellow:#facc15;--yellow-l:#fef08a;--yellow-d:#ca8a04;
+  --text:#dce8f5;--text2:#7fa5c5;--text3:#3d6080;
+  --green:#22c55e;--green-l:#4ade80;--green-d:#15803d;
+  --purple:#9b7bff;--purple-l:#b8a2ff;
+  --teal:#2dd4bf;--red:#f87171;--red-d:#dc2626;
+  --gold:#fbbf24;--orange:#fb923c;
+  --rise:#22c55e;--fall:#f87171;--neutral:#2dd4bf;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f4f7fc;--bg2:#ffffff;--bg3:#eaf0fb;--bg4:#f9fafe;
+  --border:#cdd9f0;--border2:#a8bfe8;
+  --accent:#1d4ed8;--accent-h:#1e40af;--accent-d:#1e3a8a;
+  --amber:#b45309;--amber-l:#d97706;--amber-d:#92400e;
+  --text:#0d1f33;--text2:#2d4f6e;--text3:#7a9bb5;
+  --green:#15803d;--green-l:#166534;--green-d:#14532d;
+  --purple:#6d28d9;--purple-l:#7c3aed;
+  --teal:#0f766e;--red:#b91c1c;--red-d:#991b1b;
+  --gold:#b45309;--orange:#c2410c;
+  --rise:#15803d;--fall:#b91c1c;--neutral:#0f766e;
+}}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;font-size:17px;line-height:1.7;}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:100;
+  height:60px;padding:0 clamp(20px,4vw,64px);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.nav-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.nav-logo{
+  font-size:18px;font-weight:800;letter-spacing:-.03em;
+  text-decoration:none;white-space:nowrap;
+  background:linear-gradient(135deg,var(--amber),var(--amber-l));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.nav-sep{color:var(--border2);font-size:16px;font-weight:300;}
+.nav-title{font-size:14px;font-weight:500;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-band{
+  font-size:12px;font-weight:700;padding:5px 12px;border-radius:6px;
+  background:linear-gradient(135deg,var(--gold),var(--amber));color:#fff;
+  letter-spacing:.02em;
+}
+.back-btn{
+  display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;
+  color:var(--text2);text-decoration:none;padding:7px 14px;
+  border-radius:8px;border:1px solid var(--border2);
+  transition:all .15s;white-space:nowrap;
+}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+@media(max-width:640px){.nav-title{display:none;}.back-btn span{display:none;}}
+
+/* ── TAB NAV ── */
+.tab-nav{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:0 clamp(20px,4vw,64px);
+  display:flex;overflow-x:auto;scrollbar-width:none;
+}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tnav-btn{
+  flex-shrink:0;padding:16px 20px;font-size:14px;font-weight:600;
+  color:var(--text3);background:transparent;border:none;
+  border-bottom:2px solid transparent;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:color .15s,border-color .15s;
+  white-space:nowrap;letter-spacing:-.01em;
+}
+.tnav-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tnav-btn:hover:not(.active){color:var(--text2);}
+
+/* ── HERO ── */
+.hero{
+  position:relative;overflow:hidden;
+  padding:clamp(52px,8vw,96px) clamp(20px,5vw,64px) clamp(44px,6vw,72px);
+  border-bottom:1px solid var(--border);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:48px 48px;opacity:.12;
+  mask-image:radial-gradient(ellipse 85% 70% at 50% 0%,black 25%,transparent 100%);
+}
+.hero-glow{
+  position:absolute;top:-100px;left:25%;width:600px;height:420px;
+  background:radial-gradient(ellipse,color-mix(in srgb,var(--accent) 12%,transparent),transparent 68%);
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:1;max-width:800px;}
+.hero-crumb{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text3);margin-bottom:24px;}
+.hero-crumb a{color:var(--text3);text-decoration:none;transition:color .15s;}
+.hero-crumb a:hover{color:var(--accent);}
+.hero-crumb-sep{color:var(--border2);}
+.hero-label{
+  display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--accent-h);
+  background:color-mix(in srgb,var(--accent) 10%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
+  border-radius:6px;padding:5px 12px;margin-bottom:20px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,6vw,4rem);font-weight:800;
+  line-height:1.05;letter-spacing:-.04em;margin-bottom:16px;
+  color:var(--text);
+}
+.hero h1 span{
+  background:linear-gradient(135deg,var(--accent),var(--purple-l));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-desc{font-size:18px;line-height:1.65;color:var(--text2);max-width:600px;margin-bottom:32px;font-weight:400;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:10px;}
+.hero-tag{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:9px 16px;
+  font-size:13px;font-weight:500;color:var(--text2);
+}
+.htag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── PANEL ── */
+.panel{display:none;max-width:1020px;margin:0 auto;padding:clamp(28px,4vw,52px) clamp(20px,4vw,64px);}
+.panel.active{display:block;}
+
+/* ── SECTION LABEL ── */
+.slabel{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);margin:48px 0 18px;
+  display:flex;align-items:center;gap:12px;
+}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border);}
+.slabel:first-child{margin-top:0;}
+
+/* ── INFO BOXES ── */
+.ibox{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:12px;
+  padding:20px 24px;margin-bottom:16px;
+}
+.ibox.green{border-left-color:var(--green);}
+.ibox.amber{border-left-color:var(--amber);}
+.ibox.purple{border-left-color:var(--purple);}
+.ibox.red{border-left-color:var(--red);}
+.ibox.teal{border-left-color:var(--teal);}
+.ibox-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px;color:var(--accent);}
+.ibox.green .ibox-title{color:var(--green-l);}
+.ibox.amber .ibox-title{color:var(--amber-l);}
+.ibox.purple .ibox-title{color:var(--purple-l);}
+.ibox.red .ibox-title{color:var(--red);}
+.ibox.teal .ibox-title{color:var(--teal);}
+.ibox p,.ibox li{font-size:16px;line-height:1.9;color:var(--text2);}
+.ibox p strong,.ibox li strong{color:var(--text);font-weight:600;}
+.ibox ul{padding-left:20px;}
+.ibox li{margin-bottom:4px;}
+.bn-text{color:var(--amber-l);font-style:italic;font-size:14px;}
+
+/* ── STEP CARDS ── */
+.step-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:22px 24px;margin-bottom:14px;
+  display:grid;grid-template-columns:52px 1fr;gap:18px;align-items:start;
+}
+.step-num{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:800;flex-shrink:0;
+}
+.step-content h3{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.01em;}
+.step-content p{font-size:16px;line-height:1.8;color:var(--text2);}
+.step-content p strong{color:var(--text);font-weight:600;}
+.step-bn{display:block;font-size:14px;color:var(--amber-l);margin-top:6px;font-style:italic;}
+
+/* ── EXAMPLE BLOCKS ── */
+.ex{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:20px 22px;margin-bottom:14px;}
+.ex-badge{font-size:11px;font-weight:700;letter-spacing:.07em;padding:4px 10px;border-radius:5px;display:inline-block;margin-bottom:12px;text-transform:uppercase;}
+.ex-badge.cam{background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold);}
+.ex-badge.bup{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green-l);}
+.ex-badge.wrong{background:color-mix(in srgb,var(--red) 13%,transparent);color:var(--red);}
+.ex-badge.right{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green-l);}
+.ex-en{font-size:16px;line-height:1.85;color:var(--text);margin-bottom:9px;}
+.ex-en mark{background:#facc15;color:#1a1200;padding:2px 7px;border-radius:4px;font-style:normal;font-weight:600;}
+.ex-bn{font-size:14.5px;color:var(--amber-l);line-height:1.65;margin-bottom:6px;font-style:italic;}
+.ex-note{font-size:13.5px;color:var(--text3);margin-top:10px;border-top:1px solid var(--border);padding-top:10px;line-height:1.6;}
+
+/* ── COMPARE GRID ── */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+@media(max-width:580px){.compare{grid-template-columns:1fr;}}
+.cmp{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.cmp.wrong{border-left:3px solid var(--red);}
+.cmp.right{border-left:3px solid var(--green);}
+.cmp-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;}
+.cmp.wrong .cmp-label{color:var(--red);}
+.cmp.right .cmp-label{color:var(--green-l);}
+.cmp p{font-size:16px;line-height:1.75;color:var(--text2);}
+.cmp p strong{color:var(--text);font-weight:600;}
+.cmp .bn{font-size:12px;color:var(--amber-l);margin-top:7px;display:block;font-style:italic;}
+
+/* ── VOCAB TABLES ── */
+.vtbl{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:14.5px;}
+.vtbl th{
+  background:var(--bg3);padding:11px 14px;text-align:left;
+  font-weight:700;border:1px solid var(--border);font-size:12px;
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.vtbl th.r{color:var(--rise);}
+.vtbl th.f{color:var(--fall);}
+.vtbl th.n{color:var(--neutral);}
+.vtbl th.a{color:var(--amber-l);}
+.vtbl th.p{color:var(--purple-l);}
+.vtbl td{padding:11px 14px;border:1px solid var(--border);vertical-align:top;line-height:1.55;}
+.vtbl tr:nth-child(even) td{background:rgba(255,255,255,.018);}
+.vbn{color:var(--amber-l);font-style:italic;font-size:13.5px;display:block;margin-top:3px;}
+.vexx{color:var(--text3);font-size:13px;margin-top:5px;border-left:2px solid var(--border);padding-left:8px;line-height:1.55;}
+.vtag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;display:inline-block;margin-bottom:4px;letter-spacing:.03em;}
+.tv1{background:rgba(74,143,255,.18);color:var(--accent-h);}
+.tv2{background:rgba(155,123,255,.18);color:var(--purple-l);}
+.tv3{background:rgba(34,197,94,.18);color:var(--green-l);}
+.tn{background:rgba(34,197,94,.12);color:var(--green-l);}
+.tadv{background:rgba(245,166,35,.12);color:var(--amber-l);}
+.tadj{background:rgba(155,123,255,.12);color:var(--purple-l);}
+.tirr{background:rgba(248,113,113,.14);color:var(--red);}
+
+/* ── RULE BOXES ── */
+.rbox{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:14px;}
+.rbox h4{font-size:15px;font-weight:700;margin-bottom:11px;letter-spacing:-.01em;}
+.rbox h4.g{color:var(--green-l);}
+.rbox h4.a{color:var(--amber-l);}
+.rbox h4.r{color:var(--red);}
+.rbox h4.b{color:var(--accent-h);}
+.rbox h4.p{color:var(--purple-l);}
+.rbox h4.t{color:var(--teal);}
+.rbox ul{padding-left:20px;}
+.rbox li{font-size:16px;line-height:1.9;color:var(--text2);margin-bottom:3px;}
+.rbox li strong{color:var(--text);font-weight:600;}
+.rbox code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--bg3);padding:2px 7px;border-radius:4px;color:var(--green-l);}
+.note-box{font-size:13.5px;color:var(--amber-l);margin-top:12px;padding:10px 14px;background:color-mix(in srgb,var(--amber) 7%,transparent);border-radius:8px;border-left:3px solid var(--amber);line-height:1.65;}
+
+/* ── PHRASE CARDS ── */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px;}
+.pcard{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px 18px;}
+.pcard .pen{font-size:16px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.pcard .pbn{font-size:14px;color:var(--amber-l);margin-bottom:7px;font-style:italic;}
+.pcard .pex{font-size:14px;color:var(--text3);border-top:1px solid var(--border);padding-top:7px;margin-top:5px;line-height:1.55;}
+
+/* ── PILLS ── */
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.pill{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:600;border:1px solid;}
+.pill.r{border-color:var(--rise);color:var(--rise);background:color-mix(in srgb,var(--rise) 9%,transparent);}
+.pill.f{border-color:var(--fall);color:var(--fall);background:color-mix(in srgb,var(--fall) 9%,transparent);}
+.pill.b{border-color:var(--accent);color:var(--accent-h);background:color-mix(in srgb,var(--accent) 9%,transparent);}
+.pill.p{border-color:var(--purple);color:var(--purple-l);background:color-mix(in srgb,var(--purple) 9%,transparent);}
+.pill.a{border-color:var(--amber);color:var(--amber-l);background:color-mix(in srgb,var(--amber) 9%,transparent);}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:32px clamp(20px,5vw,64px);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+}
+.f-brand{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--amber),var(--amber-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em;}
+.f-info{font-size:13px;color:var(--text3);margin-top:3px;}
+.f-band{font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--amber));color:#fff;letter-spacing:.02em;}
+
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]) .ex-en mark{background:#facc15;color:#1a1200;}}
+@media(max-width:500px){.vtbl{font-size:13px;}.vtbl th,.vtbl td{padding:9px 10px;}.pgrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="../index.html" class="nav-logo">BandUpBD</a>
+    <span class="nav-sep">/</span>
+    <span class="nav-title">Line Graph — Complete Guide</span>
+  </div>
+  <div class="nav-right">
+    <a href="../index.html" class="back-btn">← <span>Home</span></a>
+    <span class="nav-band">Band 8+</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-crumb">
+      <a href="../index.html">BandUpBD</a>
+      <span class="hero-crumb-sep">/</span>
+      <a href="../index.html#writing">Writing Task 1</a>
+      <span class="hero-crumb-sep">/</span>
+      <span style="color:var(--text2)">Line Graph</span>
+    </div>
+    <div class="hero-label">Writing Task 1 · Line Graph</div>
+    <h1>Line Graph Writing<br><span>Complete Masterclass</span></h1>
+    <p class="hero-desc">Introduction থেকে Body পর্যন্ত — Cambridge examples সহ সম্পূর্ণ বাংলায় ব্যাখ্যা। V1/V2/V3 vocabulary, tense rules, sentence structures সব এক জায়গায়।</p>
+    <div class="hero-tags">
+      <div class="hero-tag"><span class="htag-dot" style="background:var(--green)"></span>Writing Task 1</div>
+      <div class="hero-tag"><span class="htag-dot" style="background:var(--accent)"></span>Bangla অর্থসহ</div>
+      <div class="hero-tag"><span class="htag-dot" style="background:var(--amber)"></span>Cambridge Examples</div>
+      <div class="hero-tag"><span class="htag-dot" style="background:var(--purple)"></span>Band 8+ Target</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ HOW TO WRITE ═══════════ -->
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tnav-btn active" onclick="show('how',this)">How to Write</button>
+  <button class="tnav-btn" onclick="show('vocab',this)">Vocabulary</button>
+  <button class="tnav-btn" onclick="show('tense',this)">Tense Rules</button>
+  <button class="tnav-btn" onclick="show('sentence',this)">Sentence Types</button>
+  <button class="tnav-btn" onclick="show('voice',this)">Active / Passive</button>
+  <button class="tnav-btn" onclick="show('fillers',this)">Fillers & Phrases</button>
+  <button class="tnav-btn" onclick="show('rules',this)">All Rules</button>
+</div>
+
+
+<div id="how" class="panel active">
+
+<div class="slabel">Structure Overview</div>
+<div class="ibox green">
+  <div class="ibox-title">4-Paragraph Formula — Band 8-এর চাবিকাঠি</div>
+  <ul>
+    <li><strong>Paragraph 1 — Introduction (~30 words):</strong> Graph paraphrase করুন। প্রশ্নের ভাষা হুবহু copy করা যাবে না। <span class="bn-text">→ গ্রাফের বিষয়বস্তু নিজের ভাষায় বলুন।</span></li>
+    <li><strong>Paragraph 2 — Overview (~40 words):</strong> সবচেয়ে বড় ২টি feature বলুন। কোনো specific number দেওয়া যাবে না। <span class="bn-text">→ overall কী দেখা যাচ্ছে — data নয়।</span></li>
+    <li><strong>Paragraph 3 — Body 1 (~50 words):</strong> সবচেয়ে dominant line বিস্তারিত — specific numbers, years সহ।</li>
+    <li><strong>Paragraph 4 — Body 2 (~50 words):</strong> বাকি line(s) — comparison করুন।</li>
+  </ul>
+</div>
+
+<!-- INTRODUCTION -->
+<div class="slabel">Paragraph 1 — Introduction</div>
+
+<div class="step-card">
+  <div class="step-num" style="background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent-h)">1</div>
+  <div class="step-content">
+    <h3>Paraphrase করুন — হুবহু copy করবেন না</h3>
+    <p>প্রশ্নে যা লেখা থাকে তা পড়ুন, তারপর <strong>নিজের ভাষায়</strong> বলুন। শব্দ বদলান, structure বদলান।</p>
+    <span class="step-bn">প্রশ্নের "shows" → আপনি লিখবেন "illustrates" বা "depicts" বা "presents" বা "outlines"।</span>
+  </div>
+</div>
+<div class="step-card">
+  <div class="step-num" style="background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green-l)">2</div>
+  <div class="step-content">
+    <h3>What + Where/Who + When — তিনটা প্রশ্নের উত্তর দাও</h3>
+    <p><strong>What:</strong> কী দেখানো হচ্ছে? &nbsp;·&nbsp; <strong>Where/Who:</strong> কোথায় বা কাদের? &nbsp;·&nbsp; <strong>When:</strong> কোন সময়কাল?</p>
+    <span class="step-bn">এই তিনটা থাকলেই Introduction সম্পূর্ণ।</span>
+  </div>
+</div>
+<div class="step-card">
+  <div class="step-num" style="background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)">3</div>
+  <div class="step-content">
+    <h3>Introduction-এ কখনো data দেবেন না</h3>
+    <p>কোনো <strong>number, percentage বা year</strong> উল্লেখ করবে না। শুধু বিষয়টা introduce করুন।</p>
+    <span class="step-bn">সংখ্যা body paragraph-এর কাজ — intro-র নয়।</span>
+  </div>
+</div>
+
+<div class="ibox amber">
+  <div class="ibox-title">Paraphrase করার ৫টি কৌশল</div>
+  <ul>
+    <li><strong>Synonym ব্যবহার:</strong> shows → illustrates / depicts / presents / compares / outlines</li>
+    <li><strong>Noun → Verb:</strong> "a comparison of X and Y" → "comparing X and Y"</li>
+    <li><strong>Structure পরিবর্তন:</strong> "The graph shows the number of..." → "The number of... is shown in the graph..."</li>
+    <li><strong>Active → Passive:</strong> "The graph shows..." → "Information is provided about..."</li>
+    <li><strong>Different time phrase:</strong> "between 1990 and 2000" → "over a ten-year period from 1990 to 2000"</li>
+  </ul>
+</div>
+
+<p style="font-size:14px;color:var(--text3);margin-bottom:16px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;">Introduction Examples — Cambridge + BandUpBD</p>
+
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 15 — Electricity Production</span>
+  <div class="ex-en"><em>Question says:</em> "The graph below shows electricity production (in terawatt hours) in France between 1980 and 2012."</div>
+  <div class="ex-note">এটা হুবহু লেখা যাবে না। নিচে দেখুন কীভাবে paraphrase করতে হয়।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">Cambridge 15 — Paraphrased</span>
+  <div class="ex-en">The line graph <mark>illustrates</mark> the amount of electricity <mark>generated</mark> in France <mark>over a period of</mark> more than three decades, from 1980 to 2012.</div>
+  <div class="ex-bn">লাইন গ্রাফটি ১৯৮০ থেকে ২০১২ পর্যন্ত তিন দশকেরও বেশি সময়ে ফ্রান্সে উৎপাদিত বিদ্যুতের পরিমাণ দেখায়।</div>
+  <div class="ex-note">shows → illustrates ✓ &nbsp;|&nbsp; electricity production → electricity generated ✓ &nbsp;|&nbsp; between → over a period of ✓</div>
+</div>
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 16 — Goods Transported</span>
+  <div class="ex-en">The line graph <mark>presents</mark> information about the <mark>changes in</mark> the amount of goods transported by four different methods in the UK <mark>from</mark> 1974 <mark>to</mark> 2002.</div>
+  <div class="ex-bn">লাইন গ্রাফটি ১৯৭৪ থেকে ২০০২ পর্যন্ত যুক্তরাজ্যে চারটি ভিন্ন পদ্ধতিতে পরিবহন করা পণ্যের পরিমাণের পরিবর্তন সম্পর্কে তথ্য উপস্থাপন করে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Transport (3 modes)</span>
+  <div class="ex-en">The given line graph <mark>compares</mark> the number of people using three different modes of transport — car, bus, and train — in a European city <mark>over the period from</mark> 1990 to 2030.</div>
+  <div class="ex-bn">প্রদত্ত লাইন গ্রাফটি ১৯৯০ থেকে ২০৩০ পর্যন্ত একটি ইউরোপীয় শহরে গাড়ি, বাস ও ট্রেন — তিনটি ভিন্ন পরিবহন মাধ্যম ব্যবহারকারীর সংখ্যা তুলনা করে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Population (3 cities)</span>
+  <div class="ex-en">The line graph <mark>depicts</mark> the population growth of three major cities — London, Tokyo, and New York — <mark>spanning</mark> six decades <mark>from</mark> 1950 to 2010.</div>
+  <div class="ex-bn">লাইন গ্রাফটি ১৯৫০ থেকে ২০১০ পর্যন্ত ছয় দশক ধরে লন্ডন, টোকিও ও নিউ ইয়র্ক — তিনটি প্রধান শহরের জনসংখ্যা বৃদ্ধি দেখায়।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Internet Users</span>
+  <div class="ex-en">The line graph <mark>outlines</mark> the <mark>proportion</mark> of households with internet access in three countries — the USA, Germany, and Japan — <mark>over a fifteen-year period from</mark> 2000 to 2015.</div>
+  <div class="ex-bn">লাইন গ্রাফটি ২০০০ থেকে ২০১৫ পর্যন্ত পনের বছরে মার্কিন যুক্তরাষ্ট্র, জার্মানি ও জাপানে ইন্টারনেট সংযোগসহ পরিবারের অনুপাত দেখায়।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Passive form (Formal)</span>
+  <div class="ex-en"><mark>Information is provided</mark> in the line graph about the <mark>fluctuations in</mark> the price of coffee and tea in a European market <mark>between</mark> 2005 and 2020.</div>
+  <div class="ex-bn">লাইন গ্রাফটিতে ২০০৫ থেকে ২০২০ সালের মধ্যে একটি ইউরোপীয় বাজারে কফি ও চায়ের মূল্যের ওঠানামা সম্পর্কে তথ্য দেওয়া হয়েছে।</div>
+  <div class="ex-note">Passive form — formal ও academic writing-এ খুব ভালো দেখায়।</div>
+</div>
+
+<div class="compare">
+  <div class="cmp wrong">
+    <div class="cmp-label">Wrong — হুবহু copy</div>
+    <p>The graph <strong>below shows</strong> electricity production in France <strong>between</strong> 1980 and 2012.</p>
+    <span class="bn">প্রশ্নের ভাষা হুবহু তুলে দেওয়া হয়েছে।</span>
+  </div>
+  <div class="cmp right">
+    <div class="cmp-label">Correct — paraphrased</div>
+    <p>The line graph <strong>illustrates</strong> the amount of electricity <strong>generated</strong> in France <strong>over</strong> more than three decades.</p>
+    <span class="bn">৩টি শব্দ বদলেছে — সম্পূর্ণ নতুন মনে হচ্ছে।</span>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="slabel">Paragraph 2 — Overview</div>
+
+<div class="ibox purple">
+  <div class="ibox-title">Overview সবচেয়ে গুরুত্বপূর্ণ Paragraph</div>
+  <p>Examiner সবার আগে Overview খোঁজে। <strong>Overview না থাকলে Band 5-এর বেশি পাওয়া কঠিন।</strong> এখানে শুধু সবচেয়ে বড় ২টি feature বলবে — কোনো specific number বা year দেবেন না।</p>
+</div>
+
+<div class="step-card">
+  <div class="step-num" style="background:color-mix(in srgb,var(--purple) 14%,transparent);color:var(--purple-l)">1</div>
+  <div class="step-content">
+    <h3>Overview শুরু করার phrases</h3>
+    <p><strong>"Overall, it is clear that..."</strong> &nbsp;·&nbsp; <strong>"In general, the most notable feature is..."</strong> &nbsp;·&nbsp; <strong>"As an overview, it is evident that..."</strong></p>
+    <span class="step-bn">এই phrases দিয়ে শুরু করলে examiner বুঝবে এটা overview।</span>
+  </div>
+</div>
+<div class="step-card">
+  <div class="step-num" style="background:color-mix(in srgb,var(--purple) 14%,transparent);color:var(--purple-l)">2</div>
+  <div class="step-content">
+    <h3>Overview-এ কী লিখবেন — ৩টি প্রশ্ন করুন নিজেকে</h3>
+    <p><strong>① কোন line সবচেয়ে বেশি বাড়েছে?</strong> &nbsp;·&nbsp; <strong>② কোন line সবচেয়ে বেশি কমেছে?</strong> &nbsp;·&nbsp; <strong>③ কোন line সবচেয়ে উপরে বা নিচে?</strong></p>
+    <span class="step-bn">এই উত্তরগুলোই overview — data নয়, trend বলুন।</span>
+  </div>
+</div>
+<div class="step-card">
+  <div class="step-num" style="background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)">3</div>
+  <div class="step-content">
+    <h3>Overview-এ কখনো দেবেন না</h3>
+    <p>Specific numbers: <strong>"rose to 400 terawatt hours"</strong> &nbsp;·&nbsp; Specific years: <strong>"in 1990"</strong> or <strong>"by 2005"</strong></p>
+    <span class="step-bn">সংখ্যা ও সাল শুধু body paragraph-এ।</span>
+  </div>
+</div>
+
+<p style="font-size:14px;color:var(--text3);margin-bottom:16px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;">Overview Examples</p>
+
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 15 — Electricity</span>
+  <div class="ex-en">Overall, it is clear that <mark>nuclear power experienced the most dramatic increase</mark> over the period, while the use of other sources either remained relatively stable or showed only modest growth. Gas <mark>consistently accounted for the largest share</mark> of electricity production throughout.</div>
+  <div class="ex-bn">সামগ্রিকভাবে, স্পষ্ট যে পারমাণবিক শক্তি সবচেয়ে নাটকীয় বৃদ্ধি পেয়েছিল। গ্যাস সারা সময় সবচেয়ে বেশি ব্যবহৃত হয়েছে।</div>
+  <div class="ex-note">কোনো specific number নেই ✓ &nbsp;|&nbsp; biggest change mention আছে ✓ &nbsp;|&nbsp; dominant source উল্লেখ আছে ✓</div>
+</div>
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 16 — Goods Transported</span>
+  <div class="ex-en">In general, <mark>road transport showed the most significant growth</mark> over the period and <mark>became the dominant method</mark> by the end. Pipeline transport also increased considerably, whereas water and rail transport remained relatively stable throughout.</div>
+  <div class="ex-bn">সাধারণভাবে, সড়ক পরিবহন সবচেয়ে বেশি বৃদ্ধি পেয়েছিল এবং শেষে সবচেয়ে প্রধান পদ্ধতি হয়ে ওঠে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Transport (3 modes)</span>
+  <div class="ex-en">Overall, it is evident that <mark>car usage witnessed the most significant rise</mark> throughout the period, whereas the number of bus passengers <mark>declined considerably</mark>. Train travel remained the least popular mode but showed a gradual upward trend towards the end.</div>
+  <div class="ex-bn">সামগ্রিকভাবে, গাড়ির ব্যবহার সবচেয়ে বেশি বেড়েছে, বাসের সংখ্যা হ্রাস পেয়েছে। ট্রেন সবচেয়ে কম জনপ্রিয় ছিল কিন্তু শেষের দিকে বাড়তে শুরু করে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Population</span>
+  <div class="ex-en">In general, <mark>Tokyo recorded the highest population</mark> throughout the entire period, while <mark>London showed the most gradual and stable growth</mark>. All three cities, however, experienced an overall upward trend.</div>
+  <div class="ex-bn">টোকিওতে সর্বোচ্চ জনসংখ্যা, লন্ডন সবচেয়ে ধীর ও স্থির বৃদ্ধি। তিনটি শহরেই সামগ্রিক ঊর্ধ্বমুখী প্রবণতা।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Internet Users</span>
+  <div class="ex-en">Overall, all three countries experienced a consistent rise in internet access over the period. The USA <mark>maintained the highest proportion</mark> throughout, while Japan <mark>made the most rapid progress</mark>, eventually surpassing Germany by the end.</div>
+  <div class="ex-bn">তিনটি দেশেই বাড়েছে। যুক্তরাষ্ট্র সর্বোচ্চ অনুপাত বজায় রেখেছে, জাপান সবচেয়ে দ্রুত অগ্রগতি করে শেষে জার্মানিকে ছাড়িয়ে গেছে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Coffee & Tea Prices</span>
+  <div class="ex-en">As an overview, <mark>coffee prices fluctuated considerably</mark> and were <mark>consistently higher than</mark> those of tea throughout the period. Tea prices, in contrast, remained relatively stable with only minor variations.</div>
+  <div class="ex-bn">কফির দাম অনেক ওঠানামা করেছে এবং চায়ের চেয়ে সবসময় বেশি ছিল। চায়ের দাম তুলনামূলকভাবে স্থিতিশীল ছিল।</div>
+</div>
+
+<div class="compare">
+  <div class="cmp wrong">
+    <div class="cmp-label">Wrong — specific numbers in overview</div>
+    <p>Overall, nuclear power rose from <strong>75TWh in 1980 to 400TWh in 2005</strong>, while gas remained at <strong>120TWh</strong>.</p>
+    <span class="bn">Overview-এ numbers ও years দেওয়া যাবে না।</span>
+  </div>
+  <div class="cmp right">
+    <div class="cmp-label">Correct — no numbers</div>
+    <p>Overall, nuclear power experienced <strong>the most dramatic increase</strong>, while gas <strong>remained the dominant</strong> source throughout.</p>
+    <span class="bn">Trend বলা হয়েছে, কোনো number নেই।</span>
+  </div>
+</div>
+
+<!-- BODY 1 -->
+<div class="slabel">Paragraph 3 — Body 1</div>
+
+<div class="ibox teal">
+  <div class="ibox-title">Body 1-এ কী লিখবেন</div>
+  <ul>
+    <li><strong>সবচেয়ে dominant বা interesting line নিয়ে লিখুন</strong> — সবচেয়ে বেশি change যেটায়।</li>
+    <li><strong>Key points cover করুন:</strong> starting point → major change → peak/trough → ending point।</li>
+    <li><strong>Specific numbers দাও:</strong> exact figures, years, percentages সহ।</li>
+    <li><strong>Approximation ব্যবহার করুন:</strong> "approximately", "roughly", "just over", "nearly"।</li>
+  </ul>
+</div>
+
+<div class="ibox">
+  <div class="ibox-title">Body 1 লেখার Flow</div>
+  <p><strong>Starting point</strong> → <strong>Major change (rise/fall)</strong> → <strong>Peak or trough</strong> → <strong>End point বা final trend</strong></p>
+</div>
+
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 15 — Electricity Body 1 (Nuclear)</span>
+  <div class="ex-en">In 1980, nuclear power <mark>stood at</mark> approximately 75 terawatt hours, which was the <mark>lowest among all</mark> sources. However, it <mark>rose dramatically</mark> over the following decades, <mark>reaching a peak of</mark> around 400 terawatt hours by 2005. After that, it <mark>experienced a slight decline</mark> before <mark>stabilising</mark> at roughly 380 terawatt hours in 2012.</div>
+  <div class="ex-bn">১৯৮০ সালে পারমাণবিক শক্তি প্রায় ৭৫ টেরাওয়াটে ছিল — সব উৎসের মধ্যে সর্বনিম্ন। পরবর্তী দশকগুলোতে নাটকীয়ভাবে বেড়ে ২০০৫ সালে প্রায় ৪০০-এ শীর্ষে পৌঁছায়। তারপর সামান্য কমে ২০১২ সালে প্রায় ৩৮০-এ স্থির হয়।</div>
+  <div class="ex-note">Starting point ✓ &nbsp;|&nbsp; "stood at" ✓ &nbsp;|&nbsp; Peak with year ✓ &nbsp;|&nbsp; End point ✓ &nbsp;|&nbsp; Approximation words ✓</div>
+</div>
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 16 — Goods Body 1 (Road)</span>
+  <div class="ex-en">Road transport <mark>began the period at</mark> approximately 70 billion tonne-kilometres in 1974 and <mark>showed a consistent upward trend</mark> throughout. <mark>Having risen steadily</mark> through the 1980s and 1990s, it <mark>surged</mark> in the early 2000s, <mark>reaching</mark> nearly 100 billion tonne-kilometres by 2002, making it the <mark>dominant method</mark> by the end.</div>
+  <div class="ex-bn">সড়ক পরিবহন ১৯৭৪ সালে প্রায় ৭০ বিলিয়ন টন-কিলোমিটার থেকে শুরু করে ধারাবাহিকভাবে বাড়তে থাকে। ২০০২ সালে প্রায় ১০০ বিলিয়নে পৌঁছে সবচেয়ে প্রধান পদ্ধতি হয়।</div>
+  <div class="ex-note">"Having risen" = Advanced participle clause ✓ &nbsp;|&nbsp; Specific numbers ✓ &nbsp;|&nbsp; "dominant method" ✓</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Transport Body 1 (Car)</span>
+  <div class="ex-en">In 1990, the number of car users <mark>stood at</mark> approximately 5 million. This figure <mark>climbed steadily</mark> throughout the 1990s before <mark>surging dramatically</mark> in the early 2000s, <mark>reaching its peak of</mark> nearly 9 million in 2010. Despite a slight dip in 2015, it <mark>is projected to</mark> remain at around 8 million by 2030.</div>
+  <div class="ex-bn">১৯৯০ সালে গাড়ি ব্যবহারকারী প্রায় ৫ মিলিয়ন। ২০১০ সালে প্রায় ৯ মিলিয়নে শীর্ষে পৌঁছায়। ২০৩০ সালেও প্রায় ৮ মিলিয়নে থাকবে বলে প্রক্ষেপণ।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Population Body 1 (Tokyo)</span>
+  <div class="ex-en">Tokyo <mark>began the period with</mark> a population of roughly 35 million in 1950, the <mark>highest of all three cities</mark>. After rising moderately through the 1960s and 1970s, it <mark>experienced a more rapid increase</mark>, <mark>peaking at</mark> approximately 55 million in 1990. Subsequently, the growth rate <mark>gradually levelled off</mark>, stabilising at around 60 million towards 2010.</div>
+  <div class="ex-bn">টোকিও ১৯৫০ সালে প্রায় ৩৫ মিলিয়ন — তিনটির মধ্যে সর্বোচ্চ। ১৯৯০ সালে প্রায় ৫৫ মিলিয়নে শীর্ষে পৌঁছে, তারপর ধীরে সমতলে আসে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Internet Body 1 (USA)</span>
+  <div class="ex-en">The USA <mark>recorded the highest proportion</mark> throughout. <mark>Starting at</mark> around 20% in 2000, it <mark>rose sharply</mark> to approximately 65% by 2005. Growth then <mark>continued at a more moderate pace</mark>, with the figure <mark>climbing to</mark> just over 80% by 2015.</div>
+  <div class="ex-bn">যুক্তরাষ্ট্র সর্বোচ্চ অনুপাত রেকর্ড করেছে। ২০০০ সালে প্রায় ২০% থেকে ২০০৫ সালে প্রায় ৬৫%-এ তীব্রভাবে বাড়ে। তারপর মাঝারি গতিতে বেড়ে ২০১৫ সালে ৮০%-এর সামান্য বেশিতে পৌঁছায়।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Coffee Body 1</span>
+  <div class="ex-en">Coffee prices <mark>fluctuated considerably</mark> throughout. <mark>Beginning at</mark> approximately €3 per kilogram in 2005, they <mark>experienced a sharp rise</mark> to <mark>reach a peak of</mark> around €5 in 2010 before <mark>plummeting</mark> to nearly €2 in 2013. After this low point, prices <mark>recovered gradually</mark>, ending at roughly €4 in 2020.</div>
+  <div class="ex-bn">কফির দাম অনেক ওঠানামা করে। ২০১০ সালে ৫ ইউরোতে শীর্ষে পৌঁছে, ২০১৩ সালে ২ ইউরোতে ধসে পড়ে এবং ২০২০ সালে ৪ ইউরোতে শেষ হয়।</div>
+</div>
+
+<!-- BODY 2 -->
+<div class="slabel">Paragraph 4 — Body 2</div>
+
+<div class="ibox teal">
+  <div class="ibox-title">Body 2-এ কী লিখবেন</div>
+  <ul>
+    <li><strong>বাকি line(s) নিয়ে লিখুন</strong> — ২টা থাকলে compare করুন, ৩টা থাকলে সংক্ষেপে সব বলুন।</li>
+    <li><strong>Linking words ব্যবহার করুন:</strong> In contrast, Meanwhile, Similarly, However, Whereas।</li>
+    <li><strong>Crossover point থাকলে mention করুন।</strong></li>
+    <li><strong>Key similarities বা differences highlight করুন।</strong></li>
+  </ul>
+</div>
+
+<div class="ibox">
+  <div class="ibox-title">Body 2-এ Comparison করার ৫টি কৌশল</div>
+  <ul>
+    <li><strong>Direct contrast:</strong> "While X rose sharply, Y declined steadily." <span class="bn-text">— দুটো opposite trend একসাথে বলুন</span></li>
+    <li><strong>Gap comparison:</strong> "X remained consistently higher than Y throughout." <span class="bn-text">— পার্থক্যটা বলুন</span></li>
+    <li><strong>Crossover point:</strong> "X overtook Y around 2005, after which..." <span class="bn-text">— দুটো line cross করলে বলুন</span></li>
+    <li><strong>Similar trend:</strong> "Similarly, Y also rose, though at a slower rate than X." <span class="bn-text">— একই direction হলে বলুন</span></li>
+    <li><strong>Start/End gap:</strong> "Both began similarly, but by 2010 X had far surpassed Y." <span class="bn-text">— শুরু ও শেষের পার্থক্য বলুন</span></li>
+  </ul>
+</div>
+
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 15 — Electricity Body 2 (Gas + Others)</span>
+  <div class="ex-en"><mark>In contrast to</mark> nuclear power, gas <mark>remained the dominant</mark> source throughout, beginning at around 120 terawatt hours in 1980. Although it fluctuated slightly between 1980 and 2000, it <mark>rose steadily</mark> thereafter, reaching approximately 150 terawatt hours by 2012. <mark>Meanwhile</mark>, coal and oil <mark>experienced relatively little change</mark>, maintaining figures well below those of gas and nuclear power.</div>
+  <div class="ex-bn">গ্যাস সারা সময় প্রধান উৎস ছিল। ১৯৮০ থেকে ২০০০-এ সামান্য ওঠানামার পর বাড়তে থাকে। কয়লা ও তেলে খুব কম পরিবর্তন হয়েছে।</div>
+  <div class="ex-note">In contrast to ✓ &nbsp;|&nbsp; Meanwhile ✓ &nbsp;|&nbsp; Specific numbers ✓ &nbsp;|&nbsp; Comparison করা হয়েছে ✓</div>
+</div>
+<div class="ex">
+  <span class="ex-badge cam">Cambridge 16 — Goods Body 2 (Water + Rail + Pipeline)</span>
+  <div class="ex-en">Water transport showed little overall change, hovering between 50 and 60 billion tonne-kilometres. Rail also remained relatively stable, ending at a similar level to where it began. <mark>In contrast</mark>, pipeline transport <mark>rose from virtually nothing</mark> in 1974 to approximately 20 billion by 2002, representing the second largest growth after road.</div>
+  <div class="ex-bn">পানি পরিবহন ৫০-৬০ বিলিয়নের মধ্যে ঘুরপাক খেয়েছে। রেলও স্থিতিশীল ছিল। পাইপলাইন প্রায় শূন্য থেকে ২০ বিলিয়নে উঠেছে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Transport Body 2 (Bus + Train)</span>
+  <div class="ex-en"><mark>In contrast</mark>, bus usage <mark>showed a steady decline</mark>, <mark>falling from</mark> approximately 8 million in 1990 <mark>to</mark> just 3 million by 2030. <mark>Meanwhile</mark>, train travel started at around 2 million but <mark>rose gradually</mark>, <mark>overtaking</mark> bus passengers around 2025 to reach nearly 4 million by 2030.</div>
+  <div class="ex-bn">বাসের ব্যবহার ৮ মিলিয়ন থেকে ৩ মিলিয়নে নামে। ট্রেন ২ মিলিয়ন থেকে বেড়ে ২০২৫-এ বাসকে ছাড়িয়ে ২০৩০ সালে ৪ মিলিয়নে পৌঁছায়।</div>
+  <div class="ex-note">Crossover point mention করা হয়েছে ✓ &nbsp;|&nbsp; "overtaking" = advanced vocabulary ✓</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Population Body 2 (London + New York)</span>
+  <div class="ex-en">London, <mark>starting at</mark> approximately 20 million in 1950, <mark>showed the most gradual growth</mark>, rising slowly to around 30 million by 2010. New York <mark>followed a similar pattern</mark>, beginning at roughly 25 million and increasing moderately to reach just under 40 million. <mark>Notably, both cities</mark> grew at a considerably slower rate than Tokyo.</div>
+  <div class="ex-bn">লন্ডন ২০ মিলিয়ন থেকে ধীরে বেড়ে ৩০ মিলিয়নে। নিউ ইয়র্ক ২৫ থেকে প্রায় ৪০ মিলিয়নে। উভয়ই টোকিওর চেয়ে ধীরে বেড়েছে।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Internet Body 2 (Germany + Japan)</span>
+  <div class="ex-en">Germany began at around 15% and grew steadily to approximately 70% by 2015. Japan, <mark>in contrast</mark>, started from under 10% but <mark>experienced a dramatic rise</mark>, <mark>surpassing</mark> Germany around 2010 and ending at nearly 75% — <mark>the highest of the three countries</mark>.</div>
+  <div class="ex-bn">জার্মানি প্রায় ১৫% থেকে ৭০%-এ বাড়ে। জাপান ১০%-এরও কম থেকে নাটকীয়ভাবে বেড়ে ২০১০-এ জার্মানিকে ছাড়িয়ে ৭৫%-এ পৌঁছায়।</div>
+</div>
+<div class="ex">
+  <span class="ex-badge bup">BandUpBD — Coffee & Tea Body 2 (Tea)</span>
+  <div class="ex-en">Tea prices, <mark>in contrast to</mark> coffee, <mark>remained relatively stable</mark> throughout. Starting at approximately €1.50 in 2005, the price <mark>edged up slightly</mark> to around €2 by 2010 before dipping marginally and recovering to end at roughly €2.20 in 2020. <mark>At no point</mark> did tea prices reach even half those of coffee.</div>
+  <div class="ex-bn">চায়ের দাম স্থিতিশীল ছিল — ১.৫০ থেকে ২.২০ ইউরো। কখনো কফির অর্ধেকেও পৌঁছায়নি।</div>
+  <div class="ex-note">"At no point did" = Advanced inverted structure ✓</div>
+</div>
+
+</div>
+
+<!-- ═══════════ VOCABULARY ═══════════ -->
+<div id="vocab" class="panel">
+
+<div class="ibox green">
+  <div class="ibox-title">Vocabulary ব্যবহারের Golden Rules</div>
+  <ul>
+    <li>একই শব্দ বারবার নয়: <strong>increased → rose → climbed → grew</strong> — ঘুরিয়ে ব্যবহার করুন।</li>
+    <li>Verb ↔ Noun: <strong>"increased sharply"</strong> ↔ <strong>"a sharp increase"</strong> — দুটো form মেশান।</li>
+    <li>Adverb + Verb: <strong>"rose sharply"</strong> ✓ &nbsp;|&nbsp; Adjective + Noun: <strong>"a sharp rise"</strong> ✓</li>
+    <li>Noun + Adverb: <strong>"increase sharply"</strong> = WRONG — noun-এর পরে adverb বসে না।</li>
+  </ul>
+</div>
+
+<div class="slabel">Highly / Sharply Increase — তীব্রভাবে বৃদ্ধি</div>
+<table class="vtbl">
+  <tr><th class="r">V1 (Base / Present)</th><th class="r">V2 (Past Simple)</th><th class="r">V3 (Past Participle)</th><th class="r">Noun রূপ</th><th class="r">Adverb / Adjective</th></tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> soar<div class="vbn">তীব্রভাবে বাড়া</div><div class="vexx">Figures will soar by 2030. / Numbers soar every summer.</div></td>
+    <td><span class="vtag tv2">V2</span> soared<div class="vbn">তীব্রভাবে বেড়েছিল</div><div class="vexx">Sales soared dramatically in 2005. / The figure soared to its highest point.</div></td>
+    <td><span class="vtag tv3">V3</span> soared<div class="vbn">has / had soared</div><div class="vexx">The figure has soared since 2010. / By 2005, it had soared to 400TWh.</div></td>
+    <td><span class="vtag tn">N</span> a soaring rise<br>a dramatic surge<div class="vbn">তীব্র উত্থান</div></td>
+    <td><span class="vtag tadv">Adv</span> sharply, dramatically, steeply<div class="vbn">তীব্রভাবে, নাটকীয়ভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> surge<div class="vbn">হঠাৎ তীব্রভাবে বৃদ্ধি</div><div class="vexx">Numbers surge during peak seasons. / Demand tends to surge in winter.</div></td>
+    <td><span class="vtag tv2">V2</span> surged<div class="vbn">তীব্রভাবে বৃদ্ধি পেয়েছিল</div><div class="vexx">Production surged in 1995. / The figure surged to nearly double.</div></td>
+    <td><span class="vtag tv3">V3</span> surged<div class="vbn">has / had surged</div><div class="vexx">Output has surged by 40% since 2010.</div></td>
+    <td><span class="vtag tn">N</span> a sharp surge<br>a sudden surge<div class="vbn">তীব্র উচ্ছ্বাস</div></td>
+    <td><span class="vtag tadj">Adj</span> dramatic, steep, sharp<div class="vbn">নাটকীয়, খাড়া</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> skyrocket<div class="vbn">রকেটের মতো বাড়া</div><div class="vexx">Demand will skyrocket after launch.</div></td>
+    <td><span class="vtag tv2">V2</span> skyrocketed<div class="vbn">রকেটের মতো বেড়েছিল</div><div class="vexx">Demand skyrocketed in 2000. / Prices skyrocketed after the crisis.</div></td>
+    <td><span class="vtag tv3">V3</span> skyrocketed<div class="vbn">has skyrocketed</div><div class="vexx">Costs have skyrocketed recently.</div></td>
+    <td><span class="vtag tn">N</span> a dramatic increase<br>a sharp jump<div class="vbn">নাটকীয় বৃদ্ধি</div></td>
+    <td><span class="vtag tadv">Adv</span> rapidly, significantly<div class="vbn">দ্রুতভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> shoot up / spike<div class="vbn">দ্রুত উপরে ওঠা</div><div class="vexx">Rates shoot up after every crisis.</div></td>
+    <td><span class="vtag tv2">V2</span> shot up / spiked<div class="vbn">দ্রুত উপরে উঠেছিল</div><div class="vexx">Prices shot up suddenly in 2008. / Energy use spiked in January.</div></td>
+    <td><span class="vtag tv3">V3</span> shot up / spiked<div class="vbn">has shot up / spiked</div><div class="vexx">Demand has spiked this quarter. / Rates have shot up considerably.</div></td>
+    <td><span class="vtag tn">N</span> a spike<br>a sharp jump<div class="vbn">হঠাৎ বিশাল উত্থান</div></td>
+    <td><span class="vtag tadv">Adv</span> drastically, markedly<div class="vbn">ব্যাপকভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> rocket<div class="vbn">দ্রুতগতিতে বাড়া</div><div class="vexx">Numbers rocket after each reform.</div></td>
+    <td><span class="vtag tv2">V2</span> rocketed<div class="vbn">দ্রুতগতিতে বেড়েছিল</div><div class="vexx">The figure rocketed in 2010. / Sales rocketed by 60% after the launch.</div></td>
+    <td><span class="vtag tv3">V3</span> rocketed<div class="vbn">has rocketed</div><div class="vexx">Revenue has rocketed since the new policy.</div></td>
+    <td><span class="vtag tn">N</span> a rapid rise<br>a marked increase<div class="vbn">দ্রুত বৃদ্ধি</div></td>
+    <td><span class="vtag tadv">Adv</span> substantially, markedly<div class="vbn">উল্লেখযোগ্যভাবে</div></td>
+  </tr>
+</table>
+
+<div class="slabel">Moderately Increase — মাঝারিভাবে বৃদ্ধি</div>
+<table class="vtbl">
+  <tr><th class="r">V1</th><th class="r">V2</th><th class="r">V3</th><th class="r">Noun রূপ</th><th class="r">Adverb / Adjective</th></tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> increase<div class="vbn">বৃদ্ধি পাওয়া</div><div class="vexx">Figures increase each year. / Numbers increase steadily over decades.</div></td>
+    <td><span class="vtag tv2">V2</span> increased<div class="vbn">বৃদ্ধি পেয়েছিল</div><div class="vexx">The figure increased sharply in 2000. / Sales increased by 15% in 2005.</div></td>
+    <td><span class="vtag tv3">V3</span> increased<div class="vbn">has / had increased</div><div class="vexx">It has increased by 20% since 2010. / By 2005, it had increased threefold.</div></td>
+    <td><span class="vtag tn">N</span> an increase / a rise<div class="vbn">বৃদ্ধি</div></td>
+    <td><span class="vtag tadv">Adv</span> moderately, steadily, consistently<div class="vbn">মাঝারিভাবে, ধারাবাহিকভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tirr">V1</span> rise <span style="color:var(--red);font-size:11px;">irregular</span><div class="vbn">উপরে ওঠা</div><div class="vexx">Temperatures rise in summer. / The figure tends to rise after reform.</div></td>
+    <td><span class="vtag tv2">V2</span> rose <span style="color:var(--red);font-size:11px;">rised ✗</span><div class="vbn">উপরে উঠেছিল</div><div class="vexx">The rate rose between 1990 and 2000. / Sales rose to a new high in 2005.</div></td>
+    <td><span class="vtag tv3">V3</span> risen <span style="color:var(--red);font-size:11px;">rised ✗</span><div class="vbn">has risen / had risen</div><div class="vexx">Prices have risen considerably. / By 2005, it had risen to 60 million.</div></td>
+    <td><span class="vtag tn">N</span> a moderate rise<br>a noticeable rise<div class="vbn">মাঝারি বৃদ্ধি</div></td>
+    <td><span class="vtag tadj">Adj</span> moderate, notable, considerable<div class="vbn">মাঝারি, লক্ষণীয়</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> climb<div class="vbn">ধীরে উপরে ওঠা</div><div class="vexx">Rates climb each decade. / The figure continues to climb.</div></td>
+    <td><span class="vtag tv2">V2</span> climbed<div class="vbn">ধীরে উঠেছিল</div><div class="vexx">Enrolment climbed through the 1990s. / The figure climbed from 20% to 45%.</div></td>
+    <td><span class="vtag tv3">V3</span> climbed<div class="vbn">has / had climbed</div><div class="vexx">Numbers have climbed steadily since 2005. / By 2000, it had climbed to 50 million.</div></td>
+    <td><span class="vtag tn">N</span> a steady climb<div class="vbn">স্থির আরোহণ</div></td>
+    <td><span class="vtag tadv">Adv</span> consistently, gradually, notably<div class="vbn">ধারাবাহিকভাবে, লক্ষণীয়ভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tirr">V1</span> grow <span style="color:var(--red);font-size:11px;">irregular</span><div class="vbn">বৃদ্ধি পাওয়া</div><div class="vexx">Economies grow steadily over time. / The sector continues to grow.</div></td>
+    <td><span class="vtag tv2">V2</span> grew <span style="color:var(--red);font-size:11px;">growed ✗</span><div class="vbn">বৃদ্ধি পেয়েছিল</div><div class="vexx">The market grew by 15% in 2005. / The population grew rapidly in that decade.</div></td>
+    <td><span class="vtag tv3">V3</span> grown <span style="color:var(--red);font-size:11px;">growed ✗</span><div class="vbn">has / had grown</div><div class="vexx">The sector has grown considerably. / By 2010, it had grown threefold.</div></td>
+    <td><span class="vtag tn">N</span> moderate growth<br>substantial growth<div class="vbn">মাঝারি প্রবৃদ্ধি</div></td>
+    <td><span class="vtag tadv">Adv</span> considerably, appreciably<div class="vbn">উল্লেখযোগ্যভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tirr">V1</span> go up <span style="color:var(--red);font-size:11px;">irregular</span><div class="vbn">উপরে যাওয়া</div><div class="vexx">Figures tend to go up after policy changes.</div></td>
+    <td><span class="vtag tv2">V2</span> went up <span style="color:var(--red);font-size:11px;">go→went</span><div class="vbn">উপরে গিয়েছিল</div><div class="vexx">The figure went up steadily in 2003. / Sales went up after the new campaign.</div></td>
+    <td><span class="vtag tv3">V3</span> gone up <span style="color:var(--red);font-size:11px;">go→gone</span><div class="vbn">has gone up</div><div class="vexx">Numbers have gone up noticeably. / The rate has gone up by 10 points.</div></td>
+    <td><span class="vtag tn">N</span> an upward trend<div class="vbn">ঊর্ধ্বমুখী প্রবণতা</div></td>
+    <td><span class="vtag tadv">Adv</span> noticeably, perceptibly<div class="vbn">লক্ষণীয়ভাবে</div></td>
+  </tr>
+</table>
+
+<div class="slabel">Gradually Increase — ধীরে ধীরে বৃদ্ধি</div>
+<table class="vtbl">
+  <tr><th class="r">V1</th><th class="r">V2</th><th class="r">V3</th><th class="r">Noun রূপ</th><th class="r">Adverb / Adjective</th></tr>
+  <tr>
+    <td><span class="vtag tirr">V1</span> creep up <span style="color:var(--red);font-size:11px;">irregular</span><div class="vbn">খুব ধীরে বাড়া</div><div class="vexx">Prices creep up year by year. / Figures tend to creep up slowly.</div></td>
+    <td><span class="vtag tv2">V2</span> crept up <span style="color:var(--red);font-size:11px;">creeped ✗</span><div class="vbn">খুব ধীরে বেড়েছিল</div><div class="vexx">The figure crept up gradually after 2000. / The rate crept up from 10% to 15%.</div></td>
+    <td><span class="vtag tv3">V3</span> crept up <span style="color:var(--red);font-size:11px;">creeped ✗</span><div class="vbn">has / had crept up</div><div class="vexx">Rates have crept up over the years. / By 2010, it had crept up to 25%.</div></td>
+    <td><span class="vtag tn">N</span> a gradual rise<br>a marginal increase<div class="vbn">ধীরগতির বৃদ্ধি</div></td>
+    <td><span class="vtag tadv">Adv</span> gradually, slowly, steadily<div class="vbn">ধীরে ধীরে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> edge up<div class="vbn">সামান্য বাড়া</div><div class="vexx">Rates edge up after each reform. / The figure edges up slightly each year.</div></td>
+    <td><span class="vtag tv2">V2</span> edged up<div class="vbn">সামান্য বেড়েছিল</div><div class="vexx">The figure edged up slightly in 1998. / The price edged up by just €0.50.</div></td>
+    <td><span class="vtag tv3">V3</span> edged up<div class="vbn">has / had edged up</div><div class="vexx">Consumption has edged up marginally. / By 2010, it had edged up to 30%.</div></td>
+    <td><span class="vtag tn">N</span> a slight increase<br>a minor increase<div class="vbn">সামান্য বৃদ্ধি</div></td>
+    <td><span class="vtag tadj">Adj</span> gradual, slight, marginal<div class="vbn">ধীরগতির, সামান্য</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> inch up<div class="vbn">অত্যন্ত ধীরে বাড়া</div><div class="vexx">Numbers inch up every quarter. / The rate inches up by small amounts.</div></td>
+    <td><span class="vtag tv2">V2</span> inched up<div class="vbn">অত্যন্ত ধীরে বেড়েছিল</div><div class="vexx">The rate inched up from 10% to 12%. / The figure inched up slowly in 2001.</div></td>
+    <td><span class="vtag tv3">V3</span> inched up<div class="vbn">has / had inched up</div><div class="vexx">The figure has inched up each year. / It had inched up to nearly 15% by 2005.</div></td>
+    <td><span class="vtag tn">N</span> a marginal growth<br>a fractional increase<div class="vbn">নগণ্য বৃদ্ধি</div></td>
+    <td><span class="vtag tadv">Adv</span> marginally, fractionally<div class="vbn">নগণ্যভাবে</div></td>
+  </tr>
+</table>
+
+<div class="slabel">Highly / Sharply Decrease — তীব্রভাবে হ্রাস</div>
+<table class="vtbl">
+  <tr><th class="f">V1</th><th class="f">V2</th><th class="f">V3</th><th class="f">Noun রূপ</th><th class="f">Adverb / Adjective</th></tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> plummet<div class="vbn">হঠাৎ তীব্রভাবে পড়া</div><div class="vexx">Stocks plummet during crises. / Figures plummet when demand collapses.</div></td>
+    <td><span class="vtag tv2">V2</span> plummeted<div class="vbn">তীব্রভাবে পড়েছিল</div><div class="vexx">Sales plummeted dramatically in 2008. / The figure plummeted to just 5% in 2010.</div></td>
+    <td><span class="vtag tv3">V3</span> plummeted<div class="vbn">has / had plummeted</div><div class="vexx">Revenue has plummeted since the crisis. / By 2010, enrolment had plummeted.</div></td>
+    <td><span class="vtag tn">N</span> a sharp fall<br>a dramatic drop<div class="vbn">তীব্র পতন</div></td>
+    <td><span class="vtag tadv">Adv</span> sharply, dramatically, drastically<div class="vbn">তীব্রভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> plunge<div class="vbn">তীব্রভাবে নামা</div><div class="vexx">Temperatures plunge in winter. / Profits plunge when costs rise sharply.</div></td>
+    <td><span class="vtag tv2">V2</span> plunged<div class="vbn">তীব্রভাবে নেমেছিল</div><div class="vexx">The figure plunged to 5% in 2010. / Prices plunged following the collapse.</div></td>
+    <td><span class="vtag tv3">V3</span> plunged<div class="vbn">has / had plunged</div><div class="vexx">Enrolment has plunged drastically. / By 2012, the rate had plunged to 10%.</div></td>
+    <td><span class="vtag tn">N</span> a plunge<br>a nosedive<div class="vbn">তীব্র নিম্নগতি</div></td>
+    <td><span class="vtag tadj">Adj</span> dramatic, steep, sharp, sudden<div class="vbn">নাটকীয়, খাড়া</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tirr">V1</span> fall <span style="color:var(--red);font-size:11px;">irregular</span><div class="vbn">নামা / পড়া</div><div class="vexx">Figures fall sharply after every peak. / Prices tend to fall in a recession.</div></td>
+    <td><span class="vtag tv2">V2</span> fell <span style="color:var(--red);font-size:11px;">falled ✗</span><div class="vbn">নেমেছিল</div><div class="vexx">Numbers fell sharply in 1995. / The rate fell to its lowest in 2008.</div></td>
+    <td><span class="vtag tv3">V3</span> fallen <span style="color:var(--red);font-size:11px;">falled ✗</span><div class="vbn">has / had fallen</div><div class="vexx">The rate has fallen sharply recently. / By 2010, it had fallen by half.</div></td>
+    <td><span class="vtag tn">N</span> a steep fall<br>a sharp fall<div class="vbn">খাড়া পতন</div></td>
+    <td><span class="vtag tadv">Adv</span> steeply, markedly, considerably<div class="vbn">খাড়াভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> drop<div class="vbn">কমে যাওয়া</div><div class="vexx">Rates drop after oversupply. / Sales drop when competition increases.</div></td>
+    <td><span class="vtag tv2">V2</span> dropped<div class="vbn">কমে গিয়েছিল</div><div class="vexx">The rate dropped sharply in 2007. / Enrolment dropped by 30% in one year.</div></td>
+    <td><span class="vtag tv3">V3</span> dropped<div class="vbn">has / had dropped</div><div class="vexx">Numbers have dropped noticeably. / By 2008, production had dropped by half.</div></td>
+    <td><span class="vtag tn">N</span> a sharp drop<br>a significant drop<div class="vbn">তীব্র পতন</div></td>
+    <td><span class="vtag tadv">Adv</span> noticeably, rapidly, significantly<div class="vbn">লক্ষণীয়ভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> crash / nosedive<div class="vbn">ধসে পড়া</div><div class="vexx">Markets crash suddenly without warning. / Prices nosedive when supply floods.</div></td>
+    <td><span class="vtag tv2">V2</span> crashed / nosedived<div class="vbn">ধসে পড়েছিল</div><div class="vexx">Prices crashed after the global crisis. / The figure nosedived in 2009.</div></td>
+    <td><span class="vtag tv3">V3</span> crashed / nosedived<div class="vbn">has crashed / nosedived</div><div class="vexx">The rate has nosedived since 2020.</div></td>
+    <td><span class="vtag tn">N</span> a collapse / a crash<div class="vbn">ধস / পতন</div></td>
+    <td><span class="vtag tadv">Adv</span> catastrophically, severely<div class="vbn">বিপর্যয়করভাবে</div></td>
+  </tr>
+</table>
+
+<div class="slabel">Moderately / Gradually Decrease — মাঝারি ও ধীর হ্রাস</div>
+<table class="vtbl">
+  <tr><th class="f">V1</th><th class="f">V2</th><th class="f">V3</th><th class="f">Noun রূপ</th><th class="f">Adverb / Adjective</th></tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> decline<div class="vbn">হ্রাস পাওয়া</div><div class="vexx">Enrolment figures decline each year. / Interest tends to decline over time.</div></td>
+    <td><span class="vtag tv2">V2</span> declined<div class="vbn">হ্রাস পেয়েছিল</div><div class="vexx">Production declined between 2000–2005. / Sales declined steadily after the peak.</div></td>
+    <td><span class="vtag tv3">V3</span> declined<div class="vbn">has / had declined</div><div class="vexx">Output has declined steadily since 2010. / By 2010, enrolment had declined sharply.</div></td>
+    <td><span class="vtag tn">N</span> a moderate decline<br>a steady decline<div class="vbn">মাঝারি হ্রাস</div></td>
+    <td><span class="vtag tadv">Adv</span> moderately, steadily, considerably<div class="vbn">মাঝারিভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> decrease<div class="vbn">কমা</div><div class="vexx">Rates decrease during recessions. / The number tends to decrease in winter.</div></td>
+    <td><span class="vtag tv2">V2</span> decreased<div class="vbn">কমেছিল</div><div class="vexx">The figure decreased notably in 2003. / Spending decreased by 15% in 2008.</div></td>
+    <td><span class="vtag tv3">V3</span> decreased<div class="vbn">has / had decreased</div><div class="vexx">Numbers have decreased by 15%. / By 2008, the rate had decreased sharply.</div></td>
+    <td><span class="vtag tn">N</span> a decrease / a reduction<div class="vbn">হ্রাস</div></td>
+    <td><span class="vtag tadv">Adv</span> considerably, appreciably<div class="vbn">উল্লেখযোগ্যভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> dip<div class="vbn">সামান্য কমা</div><div class="vexx">Sales dip slightly in slow seasons. / Figures dip temporarily before recovering.</div></td>
+    <td><span class="vtag tv2">V2</span> dipped<div class="vbn">সামান্য কমেছিল</div><div class="vexx">The figure dipped slightly in 2002. / Profits dipped before recovering in 2004.</div></td>
+    <td><span class="vtag tv3">V3</span> dipped<div class="vbn">has / had dipped</div><div class="vexx">Rates have dipped marginally this year. / By 2003, it had dipped to its lowest.</div></td>
+    <td><span class="vtag tn">N</span> a slight dip<br>a marginal fall<div class="vbn">সামান্য পতন</div></td>
+    <td><span class="vtag tadj">Adj</span> slight, marginal, minor<div class="vbn">সামান্য, নগণ্য</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> edge down<div class="vbn">সামান্য কমা</div><div class="vexx">Rates edge down in slow periods.</div></td>
+    <td><span class="vtag tv2">V2</span> edged down<div class="vbn">সামান্য কমেছিল</div><div class="vexx">The figure edged down in late 2005. / Prices edged down slowly throughout 2007.</div></td>
+    <td><span class="vtag tv3">V3</span> edged down<div class="vbn">has / had edged down</div><div class="vexx">Numbers have edged down slowly. / By 2008, it had edged down to 20%.</div></td>
+    <td><span class="vtag tn">N</span> a gradual fall<div class="vbn">ধীরগতির পতন</div></td>
+    <td><span class="vtag tadv">Adv</span> gradually, slowly<div class="vbn">ধীরে ধীরে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tirr">V1</span> go down <span style="color:var(--red);font-size:11px;">irregular</span><div class="vbn">নিচে নামা</div><div class="vexx">Prices go down after oversupply. / The rate tends to go down in winter.</div></td>
+    <td><span class="vtag tv2">V2</span> went down <span style="color:var(--red);font-size:11px;">go→went</span><div class="vbn">নিচে নেমেছিল</div><div class="vexx">The rate went down in 2007. / Spending went down sharply in 2009.</div></td>
+    <td><span class="vtag tv3">V3</span> gone down <span style="color:var(--red);font-size:11px;">go→gone</span><div class="vbn">has gone down</div><div class="vexx">Numbers have gone down significantly. / The rate has gone down by 10 points.</div></td>
+    <td><span class="vtag tn">N</span> a downward trend<div class="vbn">নিম্নমুখী প্রবণতা</div></td>
+    <td><span class="vtag tadv">Adv</span> noticeably, consistently<div class="vbn">ধারাবাহিকভাবে</div></td>
+  </tr>
+</table>
+
+<div class="slabel">Stable / Fluctuate — স্থির ও ওঠানামা</div>
+<table class="vtbl">
+  <tr><th class="n">V1</th><th class="n">V2</th><th class="n">V3</th><th class="n">Noun রূপ</th><th class="n">Adverb / Adjective</th></tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> remain stable / level off<div class="vbn">স্থির থাকা / সমান হওয়া</div><div class="vexx">Growth tends to level off eventually. / Prices remain stable after reform.</div></td>
+    <td><span class="vtag tv2">V2</span> remained stable / levelled off<div class="vbn">স্থির ছিল</div><div class="vexx">The rate levelled off at 30% in 2010. / Spending remained stable throughout.</div></td>
+    <td><span class="vtag tv3">V3</span> remained / levelled off<div class="vbn">has levelled off</div><div class="vexx">Numbers have levelled off recently. / Growth has remained stable for years.</div></td>
+    <td><span class="vtag tn">N</span> a plateau<br>a levelling off<div class="vbn">সমতল পর্যায়</div></td>
+    <td><span class="vtag tadj">Adj</span> stable, constant, unchanged<div class="vbn">স্থির, ধ্রুবক</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> plateau<div class="vbn">সমতলে থামা</div><div class="vexx">Growth plateaus after reaching its peak. / The rate tends to plateau after reform.</div></td>
+    <td><span class="vtag tv2">V2</span> plateaued<div class="vbn">সমতলে থেমেছিল</div><div class="vexx">The figure plateaued in the mid-2000s. / Growth plateaued at around 50% in 2005.</div></td>
+    <td><span class="vtag tv3">V3</span> plateaued<div class="vbn">has plateaued</div><div class="vexx">Growth has plateaued at around 50%. / The rate has plateaued in recent years.</div></td>
+    <td><span class="vtag tn">N</span> stability / stagnation<div class="vbn">স্থিতিশীলতা</div></td>
+    <td><span class="vtag tadv">Adv</span> relatively, approximately<div class="vbn">তুলনামূলকভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> fluctuate<div class="vbn">ওঠানামা করা</div><div class="vexx">Markets fluctuate wildly every day. / Prices fluctuate with global demand.</div></td>
+    <td><span class="vtag tv2">V2</span> fluctuated<div class="vbn">ওঠানামা করেছিল</div><div class="vexx">The figure fluctuated 2000–2010. / Coffee prices fluctuated considerably.</div></td>
+    <td><span class="vtag tv3">V3</span> fluctuated<div class="vbn">has fluctuated</div><div class="vexx">Prices have fluctuated considerably. / The rate has fluctuated wildly in recent months.</div></td>
+    <td><span class="vtag tn">N</span> fluctuation / volatility<div class="vbn">ওঠানামা / অস্থিরতা</div></td>
+    <td><span class="vtag tadv">Adv</span> erratically, wildly, considerably<div class="vbn">এলোমেলোভাবে</div></td>
+  </tr>
+  <tr>
+    <td><span class="vtag tv1">V1</span> hover around<div class="vbn">একই জায়গায় ওঠানামা করা</div><div class="vexx">Figures hover around 50% most years. / The rate tends to hover around 30%.</div></td>
+    <td><span class="vtag tv2">V2</span> hovered around<div class="vbn">একই জায়গায় ছিল</div><div class="vexx">The figure hovered around 30% in 2005. / Sales hovered around €2 million throughout.</div></td>
+    <td><span class="vtag tv3">V3</span> hovered around<div class="vbn">has hovered</div><div class="vexx">Numbers have hovered around 40%. / The price has hovered around €3 for years.</div></td>
+    <td><span class="vtag tn">N</span> little overall change<div class="vbn">সামান্য পরিবর্তন</div></td>
+    <td><span class="vtag tadv">Adv</span> broadly, roughly, approximately<div class="vbn">মোটামুটিভাবে</div></td>
+  </tr>
+</table>
+
+<div class="ibox red">
+  <div class="ibox-title">Irregular Verbs — অবশ্যই মুখস্থ রাখুন</div>
+  <table class="vtbl" style="margin-bottom:0;">
+    <tr><th>V1</th><th>V2 (Past Simple)</th><th>V3 (Past Participle)</th><th>Common Error</th></tr>
+    <tr><td>rise</td><td style="color:var(--amber-l)">rose</td><td style="color:var(--green-l)">risen</td><td style="color:var(--red)">rised — most common mistake!</td></tr>
+    <tr><td>fall</td><td style="color:var(--amber-l)">fell</td><td style="color:var(--green-l)">fallen</td><td style="color:var(--red)">falled</td></tr>
+    <tr><td>grow</td><td style="color:var(--amber-l)">grew</td><td style="color:var(--green-l)">grown</td><td style="color:var(--red)">growed</td></tr>
+    <tr><td>go</td><td style="color:var(--amber-l)">went</td><td style="color:var(--green-l)">gone</td><td style="color:var(--red)">goed</td></tr>
+    <tr><td>creep</td><td style="color:var(--amber-l)">crept</td><td style="color:var(--green-l)">crept</td><td style="color:var(--red)">creeped</td></tr>
+    <tr><td>begin</td><td style="color:var(--amber-l)">began</td><td style="color:var(--green-l)">begun</td><td style="color:var(--red)">beginned</td></tr>
+  </table>
+</div>
+
+</div>
+
+<!-- ═══════════ TENSE ═══════════ -->
+<div id="tense" class="panel">
+
+<div class="ibox green">
+  <div class="ibox-title">Golden Rule — সময় দেখে tense ঠিক করুন</div>
+  <ul>
+    <li><strong>Past date (1990, between 1990–2000):</strong> Past Simple → V2</li>
+    <li><strong>By [past year]:</strong> Past Perfect → had + V3</li>
+    <li><strong>Graph বর্ণনায় (সবসময়):</strong> Present Simple → "The graph shows..."</li>
+    <li><strong>Since / over the past / recently:</strong> Present Perfect → has/have + V3</li>
+    <li><strong>Future / projected:</strong> will + V1 &nbsp;|&nbsp; is projected/expected/forecast to + V1</li>
+    <li><strong>By [future year]:</strong> Future Perfect → will have + V3</li>
+  </ul>
+</div>
+
+<!-- PAST SIMPLE -->
+<div class="slabel">Past Simple — Subject + V2</div>
+<div class="rbox">
+  <h4 class="b">কখন ব্যবহার করবে?</h4>
+  <ul>
+    <li>Graph-এ নির্দিষ্ট অতীত সময় দেওয়া থাকলে: "in 1990", "between 1990 and 2000", "from 1995 to 2005"।</li>
+    <li>V2 মানে: verb-এর past form → increase→increased, rise→rose, fall→fell।</li>
+    <li>Regular verbs: +ed যোগ করুন। Irregular verbs: আলাদা form মুখস্থ রাখুন।</li>
+  </ul>
+  <div class="note-box">rise→rose (rised নয়) &nbsp;|&nbsp; fall→fell (falled নয়) &nbsp;|&nbsp; grow→grew (growed নয়)</div>
+</div>
+
+<table class="vtbl">
+  <tr><th>Structure</th><th>Example Sentences (V2 highlighted)</th><th>বাংলা অর্থ</th></tr>
+  <tr>
+    <td><strong>Subject + V2</strong></td>
+    <td>The figure <mark>increased</mark> sharply in 2000.<br>Sales <mark>climbed</mark> steadily throughout the decade.<br>The number of users <mark>surged</mark> dramatically after 2005.</td>
+    <td class="vbn">২০০০ সালে সংখ্যাটি তীব্রভাবে বৃদ্ধি পেয়েছিল।</td>
+  </tr>
+  <tr>
+    <td><strong>V2 (irregular)</strong></td>
+    <td>The rate <mark>rose</mark> gradually between 1990 and 1995.<br>Sales <mark>fell</mark> dramatically in 2008.<br>The market <mark>grew</mark> by 15% in 2005.</td>
+    <td class="vbn">rise→rose, fall→fell, grow→grew (irregular)</td>
+  </tr>
+  <tr>
+    <td><strong>There was a + Noun</strong></td>
+    <td>There <mark>was</mark> a sharp rise in oil consumption in 1995.<br>There <mark>was</mark> a dramatic decline in enrolment after 2008.<br>There <mark>were</mark> significant fluctuations throughout the period.</td>
+    <td class="vbn">Noun form দিয়ে বলুন — variety বাড়ে।</td>
+  </tr>
+  <tr>
+    <td><strong>V2 + from X to Y</strong></td>
+    <td>The figure <mark>climbed</mark> from 20% to 45% between 1990 and 2000.<br>Sales <mark>dropped</mark> from 8 million to just 3 million by 2010.<br>The price <mark>rose</mark> from €2 to nearly €5 between 2005 and 2010.</td>
+    <td class="vbn">শুরু ও শেষ — দুটো দিলে data point বাড়ে।</td>
+  </tr>
+  <tr>
+    <td><strong>V2 + before V-ing</strong></td>
+    <td>The rate <mark>declined</mark> sharply before recovering in 2005.<br>Prices <mark>plummeted</mark> to their lowest before stabilising in 2013.<br>The figure <mark>dipped</mark> slightly before rising again after 2003.</td>
+    <td class="vbn">sequence বলুন — complex structure হয়।</td>
+  </tr>
+  <tr>
+    <td><strong>Having + V3, Subject + V2</strong></td>
+    <td><mark>Having risen</mark> steadily, the figure <mark>began</mark> to level off after 2000.<br><mark>Having peaked</mark> at 80%, production <mark>started</mark> to decline from 2005.<br><mark>Having fallen</mark> sharply, the rate <mark>stabilised</mark> at around 15% by 2010.</td>
+    <td class="vbn">Advanced participle clause — Band 8+ structure।</td>
+  </tr>
+</table>
+<div class="pills">
+  <span class="pill f">in 1990 → Past Simple</span>
+  <span class="pill f">between 1990–2000 → Past Simple</span>
+  <span class="pill f">from 1995 to 2005 → Past Simple</span>
+  <span class="pill f">in the following decade → Past Simple</span>
+  <span class="pill f">throughout the period → Past Simple</span>
+</div>
+
+<!-- PAST PERFECT -->
+<div class="slabel">Past Perfect — had + V3</div>
+<div class="rbox">
+  <h4 class="b">কখন ব্যবহার করবে?</h4>
+  <ul>
+    <li>"By [year]..." বা "By the end of..." দিয়ে শুরু হলে।</li>
+    <li>V3 = Past Participle → rise→<strong>risen</strong>, fall→<strong>fallen</strong>, grow→<strong>grown</strong>।</li>
+    <li>অর্থ: কোনো নির্দিষ্ট সময়ের আগেই কাজটি শেষ হয়ে গেছে।</li>
+  </ul>
+</div>
+<table class="vtbl">
+  <tr><th>Structure</th><th>Example Sentences</th><th>বাংলা অর্থ</th></tr>
+  <tr>
+    <td><strong>By + year, had + V3</strong></td>
+    <td>By 2005, the figure <mark>had risen</mark> to 60 million.<br>By 2008, sales <mark>had fallen</mark> by half.<br>By the mid-2000s, the rate <mark>had grown</mark> substantially.</td>
+    <td class="vbn">rise→risen, fall→fallen, grow→grown (V3 irregular)</td>
+  </tr>
+  <tr>
+    <td><strong>had already + V3</strong></td>
+    <td>By 2000, the rate <mark>had already doubled</mark> from 1990.<br>By 2005, production <mark>had already surpassed</mark> the previous record.<br>By the end of the period, it <mark>had already stabilised</mark>.</td>
+    <td class="vbn">২০০০ সালের মধ্যেই দ্বিগুণ হয়ে গিয়েছিল।</td>
+  </tr>
+  <tr>
+    <td><strong>had + V3 + before</strong></td>
+    <td>The figure <mark>had peaked</mark> at 80% before declining after 2003.<br>Prices <mark>had soared</mark> to €5 before crashing in 2013.<br>Enrolment <mark>had fallen</mark> significantly before the new policy reversed the trend.</td>
+    <td class="vbn">পতনের আগেই শীর্ষে পৌঁছে গিয়েছিল।</td>
+  </tr>
+</table>
+<div class="pills">
+  <span class="pill p">by 2000 → had + V3</span>
+  <span class="pill p">by the end of... → had + V3</span>
+  <span class="pill p">before [event] → had + V3</span>
+  <span class="pill p">by the time → had + V3</span>
+</div>
+
+<!-- PRESENT SIMPLE -->
+<div class="slabel">Present Simple — Graph বর্ণনায়</div>
+<div class="rbox">
+  <h4 class="g">কখন ব্যবহার করবে?</h4>
+  <ul>
+    <li>Graph বা chart নিজেকে describe করার সময় সবসময় Present Simple।</li>
+    <li>Introduction এবং Overview-এ সবসময়।</li>
+    <li>V1 মানে: verb-এর base form। 3rd person singular-এ s/es যোগ হয়।</li>
+  </ul>
+</div>
+<table class="vtbl">
+  <tr><th>Structure</th><th>Example Sentences</th><th>বাংলা অর্থ</th></tr>
+  <tr>
+    <td><strong>The graph + shows/illustrates</strong></td>
+    <td>The graph <mark>shows</mark> the changes in energy consumption from 1990 to 2010.<br>The line graph <mark>illustrates</mark> the population of three cities over six decades.<br>The graph <mark>compares</mark> the price of coffee and tea from 2005 to 2020.</td>
+    <td class="vbn">সবসময় Present Simple — graph describe করতে।</td>
+  </tr>
+  <tr>
+    <td><strong>It is clear that...</strong></td>
+    <td>Overall, it <mark>is</mark> clear that oil consumption increased significantly.<br>It <mark>is</mark> evident that all three cities experienced an upward trend.<br>It <mark>is</mark> apparent that nuclear power saw the most dramatic change.</td>
+    <td class="vbn">Overview শুরুতে — Present Simple।</td>
+  </tr>
+  <tr>
+    <td><strong>It can be seen that...</strong></td>
+    <td>It <mark>can be seen</mark> that X consistently outperformed Y.<br>It <mark>can be observed</mark> that gas remained the dominant source.<br>It <mark>is worth noting</mark> that the crossover occurred around 2005.</td>
+    <td class="vbn">Passive + Present — formal ও academic।</td>
+  </tr>
+  <tr>
+    <td><strong>The most notable feature is...</strong></td>
+    <td>The most notable feature <mark>is</mark> the sharp rise in solar energy after 2000.<br>The most striking aspect <mark>is</mark> the dramatic decline in bus usage.<br>Perhaps the most significant trend <mark>is</mark> the crossover between X and Y.</td>
+    <td class="vbn">Overview-এ — biggest feature বলুন।</td>
+  </tr>
+</table>
+
+<!-- PRESENT PERFECT -->
+<div class="slabel">Present Perfect — has / have + V3</div>
+<div class="rbox">
+  <h4 class="g">কখন ব্যবহার করবে?</h4>
+  <ul>
+    <li>"Since", "over the past", "recently", "in recent years" শব্দ থাকলে।</li>
+    <li>V3 = risen (rise), fallen (fall), grown (grow) — irregular মনে রাখুন।</li>
+    <li>অতীতে শুরু হয়ে এখনও চলছে বা সম্প্রতি শেষ হয়েছে এমন কাজে।</li>
+  </ul>
+</div>
+<table class="vtbl">
+  <tr><th>Structure</th><th>Example Sentences (V3 highlighted)</th><th>বাংলা অর্থ</th></tr>
+  <tr>
+    <td><strong>has/have + V3 + since</strong></td>
+    <td>The figure <mark>has risen</mark> steadily since 2010.<br>Enrolment <mark>has fallen</mark> dramatically since 2015.<br>The rate <mark>has grown</mark> considerably since the new policy.</td>
+    <td class="vbn">rise→risen, fall→fallen, grow→grown (irregular V3)</td>
+  </tr>
+  <tr>
+    <td><strong>has/have + V3 + over the past</strong></td>
+    <td>Consumption <mark>has grown</mark> over the past two decades.<br>Numbers <mark>have declined</mark> over the past five years.<br>Prices <mark>have fluctuated</mark> over the past decade.</td>
+    <td class="vbn">গত ... সময়ে — Present Perfect।</td>
+  </tr>
+  <tr>
+    <td><strong>has/have + V3 + recently</strong></td>
+    <td>The rate <mark>has increased</mark> markedly in recent years.<br>Numbers <mark>have dropped</mark> considerably in recent months.<br>The figure <mark>has stabilised</mark> in recent years after decades of growth.</td>
+    <td class="vbn">সম্প্রতি — Present Perfect।</td>
+  </tr>
+</table>
+
+<!-- FUTURE -->
+<div class="slabel">Future Tense — Projected / Forecast Data</div>
+<div class="rbox">
+  <h4 class="a">কখন ব্যবহার করবে?</h4>
+  <ul>
+    <li>Graph-এ ভবিষ্যৎ সময় থাকলে (2025, 2030) বা "projected" / "forecast" data থাকলে।</li>
+    <li>Formal writing-এ <code>is projected to</code>, <code>is expected to</code> বেশি preferred।</li>
+  </ul>
+</div>
+<table class="vtbl">
+  <tr><th>Structure</th><th>Example Sentences</th><th>বাংলা অর্থ</th></tr>
+  <tr>
+    <td><strong>will + V1</strong></td>
+    <td>The figure <mark>will rise</mark> to 50 million by 2030.<br>Sales <mark>will fall</mark> significantly after the policy change.<br>The rate <mark>will continue</mark> to grow over the next decade.</td>
+    <td class="vbn">সাধারণ ভবিষ্যৎ।</td>
+  </tr>
+  <tr>
+    <td><strong>is projected to + V1</strong></td>
+    <td>The population <mark>is projected to increase</mark> significantly.<br>Demand <mark>is projected to decline</mark> after 2025.<br>The figure <mark>is projected to reach</mark> 100 million by 2035.</td>
+    <td class="vbn">Formal — most preferred in IELTS।</td>
+  </tr>
+  <tr>
+    <td><strong>is expected to + V1</strong></td>
+    <td>Sales <mark>are expected to decline</mark> after 2025.<br>The rate <mark>is expected to stabilise</mark> in the coming years.<br>Numbers <mark>are expected to double</mark> by 2040.</td>
+    <td class="vbn">Academic writing-এ ভালো।</td>
+  </tr>
+  <tr>
+    <td><strong>is forecast to + V1</strong></td>
+    <td>Energy usage <mark>is forecast to soar</mark> by 2040.<br>The figure <mark>is forecast to reach</mark> its highest level by 2030.<br>Demand <mark>is forecast to drop</mark> sharply after the new regulations.</td>
+    <td class="vbn">Forecast data-তে সবচেয়ে appropriate।</td>
+  </tr>
+  <tr>
+    <td><strong>will have + V3</strong></td>
+    <td>By 2030, the number <mark>will have tripled</mark>.<br>By 2035, it <mark>will have risen</mark> to nearly 100 million.<br>By the end of the period, the figure <mark>will have doubled</mark>.</td>
+    <td class="vbn">Future Perfect — by + future year।</td>
+  </tr>
+  <tr>
+    <td><strong>is set to + V1</strong></td>
+    <td>The rate <mark>is set to reach</mark> its highest by 2035.<br>Numbers <mark>are set to increase</mark> substantially over the next decade.<br>Production <mark>is set to surpass</mark> all previous records by 2030.</td>
+    <td class="vbn">Formal alternative to "will"।</td>
+  </tr>
+</table>
+<div class="pills">
+  <span class="pill r">projected data → is projected to / will</span>
+  <span class="pill r">by 2030 → will have + V3</span>
+  <span class="pill r">forecast → is forecast to</span>
+  <span class="pill r">is expected to → formal preferred</span>
+</div>
+
+</div>
+
+<!-- ═══════════ SENTENCE TYPES ═══════════ -->
+<div id="sentence" class="panel">
+
+<div class="ibox green">
+  <div class="ibox-title">Band Score vs Sentence Type</div>
+  <ul>
+    <li><strong>Band 5:</strong> শুধু Simple sentences — "The figure increased. It then decreased."</li>
+    <li><strong>Band 6:</strong> Simple + Compound — "It increased, but then it decreased."</li>
+    <li><strong>Band 7:</strong> Complex sentences — "Although it increased, it later declined."</li>
+    <li><strong>Band 8+:</strong> Complex + Compound-Complex + Participle clauses</li>
+  </ul>
+</div>
+
+<!-- SIMPLE -->
+<div class="slabel">Simple Sentences — সরল বাক্য</div>
+<div class="rbox"><h4 class="b">Structure: Subject + V2 + Adverb + Time phrase</h4>
+  <ul>
+    <li>একটিমাত্র Independent Clause। সবচেয়ে সহজ কিন্তু শুধু এটা দিয়ে Band 7+ হবে না।</li>
+    <li>Noun Phrase দিয়েও: "There was a sharp rise in X."</li>
+    <li>Subject vary করুন: "The figure...", "Sales...", "The number of...", "There was..."</li>
+  </ul>
+</div>
+<div class="ex"><span class="ex-badge bup">Simple — Rise</span>
+  <div class="ex-en">The number of cars <mark>soared</mark> dramatically between 1990 and 2000.</div>
+  <div class="ex-bn">১৯৯০ থেকে ২০০০-এর মধ্যে গাড়ির সংখ্যা নাটকীয়ভাবে বৃদ্ধি পেয়েছিল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Simple — Fall</span>
+  <div class="ex-en">Sales <mark>plummeted</mark> sharply in 2008, reaching their lowest point in a decade.</div>
+  <div class="ex-bn">২০০৮ সালে বিক্রয় তীব্রভাবে ধসে পড়ল, এক দশকের মধ্যে সর্বনিম্নে পৌঁছাল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Simple — Noun phrase form</span>
+  <div class="ex-en">There was <mark>a sharp rise</mark> in oil consumption in 1995, reaching approximately 400 terawatt hours.</div>
+  <div class="ex-bn">১৯৯৫ সালে তেল ব্যবহারে একটি তীব্র বৃদ্ধি ছিল, প্রায় ৪০০ টেরাওয়াটে পৌঁছেছিল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Simple — Stable</span>
+  <div class="ex-en">The figure <mark>remained</mark> relatively stable at around 30 million throughout the decade.</div>
+  <div class="ex-bn">সংখ্যাটি দশক জুড়ে প্রায় ৩০ মিলিয়নে তুলনামূলকভাবে স্থির ছিল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Simple — Peak</span>
+  <div class="ex-en">The figure <mark>peaked</mark> at approximately 80 million in 2005 before experiencing a slight decline.</div>
+  <div class="ex-bn">সংখ্যাটি ২০০৫ সালে প্রায় ৮০ মিলিয়নে শীর্ষে পৌঁছেছিল, তারপর সামান্য কমেছিল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Simple — Fluctuate</span>
+  <div class="ex-en">Coffee prices <mark>fluctuated considerably</mark> throughout the period, never remaining stable for long.</div>
+  <div class="ex-bn">কফির দাম পুরো সময়কালে অনেক ওঠানামা করেছে, কখনো বেশিক্ষণ স্থির ছিল না।</div>
+</div>
+
+<!-- COMPOUND -->
+<div class="slabel">Compound Sentences — যৌগিক বাক্য</div>
+<div class="rbox"><h4 class="g">Structure: [Clause 1], FANBOYS [Clause 2]</h4>
+  <ul>
+    <li>FANBOYS: <code>for</code>, <code>and</code>, <code>nor</code>, <code>but</code>, <code>or</code>, <code>yet</code>, <code>so</code></li>
+    <li>দুটো Independent Clause — Conjunction-এর আগে Comma দিন।</li>
+    <li>"and" বারবার নয় — but, yet, so ঘুরিয়ে ব্যবহার করুন।</li>
+    <li>Semicolon (;) দিয়েও দুটো clause যোগ করা যায়।</li>
+  </ul>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound — and (addition)</span>
+  <div class="ex-en">The figure <mark>rose</mark> steadily from 1990 to 2000, <mark>and</mark> it <mark>continued</mark> to climb over the next decade.</div>
+  <div class="ex-bn">সংখ্যাটি ১৯৯০ থেকে ২০০০ পর্যন্ত ধীরে বাড়ল, এবং পরের দশকেও বাড়তে থাকল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound — but (contrast)</span>
+  <div class="ex-en">Oil consumption <mark>increased</mark> sharply throughout the period, <mark>but</mark> gas usage <mark>declined</mark> significantly after 2000.</div>
+  <div class="ex-bn">তেলের ব্যবহার তীব্রভাবে বাড়ল, কিন্তু ২০০০-এর পর গ্যাসের ব্যবহার হ্রাস পেল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound — yet (unexpected contrast)</span>
+  <div class="ex-en">The figures <mark>fluctuated</mark> throughout the period, <mark>yet</mark> the overall trend <mark>remained</mark> clearly upward.</div>
+  <div class="ex-bn">সংখ্যাগুলো ওঠানামা করল, তবুও সামগ্রিক প্রবণতা ঊর্ধ্বমুখীই রইল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound — so (result)</span>
+  <div class="ex-en">The rate <mark>dropped</mark> to its lowest point in 2005, <mark>so</mark> a new policy <mark>was introduced</mark> the following year.</div>
+  <div class="ex-bn">২০০৫ সালে হার সর্বনিম্নে নামল, তাই পরের বছর নতুন নীতি চালু হল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound — Semicolon</span>
+  <div class="ex-en">X <mark>soared</mark> dramatically between 1990 and 2000; Y <mark>plummeted</mark> over the same period.</div>
+  <div class="ex-bn">X নাটকীয়ভাবে বৃদ্ধি পেল; একই সময়ে Y ধসে পড়ল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound — nor</span>
+  <div class="ex-en">Coal production did not rise significantly, <mark>nor</mark> did it decline in any notable way throughout the period.</div>
+  <div class="ex-bn">কয়লা উৎপাদন উল্লেখযোগ্যভাবে বাড়েওনি, কমেওনি।</div>
+</div>
+
+<!-- COMPLEX -->
+<div class="slabel">Complex Sentences — জটিল বাক্য</div>
+<div class="rbox"><h4 class="p">Rules — অবশ্যই মানতে হবে</h4>
+  <ul>
+    <li><code>Although / Even though</code> → Clause আগে আসলে Comma: "Although X fell, Y rose." ✓</li>
+    <li><code>While / Whereas</code> → "While X increased, Y decreased." ✓</li>
+    <li><code>After + V-ing</code> → "After peaking, it declined." ✓</li>
+    <li><code>Despite + V-ing</code> → "Despite fluctuating, it grew overall." ✓</li>
+    <li><code>which</code> → Relative: "...50 million, which represented a peak." ✓</li>
+    <li><code>Having + V3</code> → "Having risen steadily, it began to level off." ✓ (Band 8+)</li>
+    <li>"Although... but" — একসাথে ব্যবহার করবে না। ✗</li>
+  </ul>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — although</span>
+  <div class="ex-en"><mark>Although</mark> the figure <mark>declined</mark> slightly in 1995, it <mark>recovered</mark> swiftly and <mark>soared</mark> to a peak by 2000.</div>
+  <div class="ex-bn">যদিও ১৯৯৫ সালে সামান্য কমেছিল, তবুও দ্রুত পুনরুদ্ধার করে ২০০০ সালে শীর্ষে পৌঁছাল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — while (simultaneous)</span>
+  <div class="ex-en"><mark>While</mark> X <mark>rose</mark> steadily throughout the period, Y <mark>experienced</mark> a significant gradual decline.</div>
+  <div class="ex-bn">যখন X ধীরে বাড়ছিল, তখন Y উল্লেখযোগ্যভাবে হ্রাস পাচ্ছিল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — whereas (direct contrast)</span>
+  <div class="ex-en">X <mark>showed</mark> a steady increase throughout, <mark>whereas</mark> Y <mark>plummeted</mark> dramatically after 2005.</div>
+  <div class="ex-bn">X ধারাবাহিক বৃদ্ধি দেখাল, যেখানে ২০০৫-এর পর Y নাটকীয়ভাবে ধসে পড়ল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — which (relative clause)</span>
+  <div class="ex-en">The figure <mark>reached</mark> 50 million in 2010, <mark>which</mark> <mark>represented</mark> a dramatic rise from the previous decade.</div>
+  <div class="ex-bn">সংখ্যাটি ২০১০ সালে ৫০ মিলিয়নে পৌঁছাল, যা আগের দশকের তুলনায় নাটকীয় বৃদ্ধি।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — after + V-ing</span>
+  <div class="ex-en"><mark>After peaking</mark> at 80% in 2000, the figure <mark>declined</mark> gradually over the following five years.</div>
+  <div class="ex-bn">২০০০ সালে ৮০%-এ শীর্ষে পৌঁছানোর পর, পরবর্তী পাঁচ বছরে ধীরে হ্রাস পেল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — despite + V-ing</span>
+  <div class="ex-en"><mark>Despite fluctuating</mark> throughout the mid-period, the figure <mark>ultimately achieved</mark> significant growth by 2010.</div>
+  <div class="ex-bn">মধ্যবর্তী সময়ে ওঠানামা সত্ত্বেও, ২০১০ সালের মধ্যে উল্লেখযোগ্য বৃদ্ধি অর্জন করল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — before + V-ing</span>
+  <div class="ex-en">The rate <mark>experienced</mark> a brief dip in 2003 <mark>before recovering</mark> and rising sharply by 2005.</div>
+  <div class="ex-bn">২০০৩ সালে সংক্ষিপ্ত পতনের পর পুনরুদ্ধার করে ২০০৫ সালে আবার তীব্রভাবে বাড়ল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — Having + V3 (Band 8+)</span>
+  <div class="ex-en"><mark>Having risen</mark> steadily throughout the 1990s, the figure <mark>began</mark> to level off after 2000.</div>
+  <div class="ex-bn">১৯৯০-এর দশক জুড়ে ধীরে বৃদ্ধি পাওয়ার পরে, ২০০০ সালের পর সমতলে আসতে শুরু করল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Complex — since (cause/time)</span>
+  <div class="ex-en"><mark>Since</mark> X consistently outperformed Y throughout the period, it is clear that X was the dominant category overall.</div>
+  <div class="ex-bn">যেহেতু X পুরো সময়কালে Y-কে ধারাবাহিকভাবে ছাড়িয়ে গেছে, স্পষ্ট যে X সামগ্রিকভাবে প্রধান category।</div>
+</div>
+
+<!-- COMPOUND-COMPLEX -->
+<div class="slabel">Compound-Complex — মিশ্র বাক্য (Band 8+)</div>
+<div class="rbox"><h4 class="a">Structure: [Dep. Clause] + [Main 1], Conjunction + [Main 2]</h4>
+  <ul>
+    <li>কমপক্ষে ২টি Independent Clause + ১টি Dependent Clause।</li>
+    <li>IELTS-এ এই structure Band 7-8 নিশ্চিত করে।</li>
+    <li>নিখুঁতভাবে লিখতে হবে — ভুল করলে বরং marks কমবে।</li>
+  </ul>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound-Complex — although...and</span>
+  <div class="ex-en"><mark>Although</mark> X <mark>declined</mark> sharply in 1995, it <mark>recovered</mark> swiftly, <mark>and</mark> by 2000, it <mark>had surpassed</mark> its previous peak.</div>
+  <div class="ex-bn">যদিও ১৯৯৫-এ তীব্রভাবে কমেছিল, দ্রুত পুনরুদ্ধার করল, এবং ২০০০-এর মধ্যে আগের সর্বোচ্চ ছাড়িয়ে গেল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound-Complex — while...but</span>
+  <div class="ex-en"><mark>While</mark> Y <mark>was climbing</mark> steadily, X <mark>experienced</mark> a dip, <mark>but</mark> both figures <mark>converged</mark> at around 30 million by 2010.</div>
+  <div class="ex-bn">যখন Y ধীরে বাড়ছিল, X পতন অনুভব করল, কিন্তু উভয় ২০১০-এ প্রায় ৩০ মিলিয়নে মিলিত হল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound-Complex — after...and</span>
+  <div class="ex-en"><mark>After reaching</mark> a peak of 60% in 2000, the figure <mark>began</mark> to fall gradually, <mark>and</mark> by 2010, it <mark>had dropped</mark> to just 30%.</div>
+  <div class="ex-bn">২০০০ সালে ৬০%-এ শীর্ষে পৌঁছানোর পর ধীরে কমতে শুরু করল, এবং ২০১০-এর মধ্যে মাত্র ৩০%-এ নেমে এল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Compound-Complex — although...yet</span>
+  <div class="ex-en"><mark>Although</mark> both X and Y <mark>began</mark> at similar levels in 1990, they <mark>diverged</mark> significantly over the following decade, <mark>yet</mark> both <mark>ended</mark> at comparable figures by 2010.</div>
+  <div class="ex-bn">যদিও ১৯৯০ সালে X এবং Y একই স্তরে শুরু করেছিল, পরের দশকে উল্লেখযোগ্যভাবে বিচ্ছিন্ন হয়ে গেল, তবুও উভয় ২০১০ সালে তুলনামূলক সংখ্যায় শেষ হল।</div>
+</div>
+
+</div>
+
+<!-- ═══════════ ACTIVE / PASSIVE ═══════════ -->
+<div id="voice" class="panel">
+
+<div class="ibox">
+  <div class="ibox-title">কখন Active, কখন Passive?</div>
+  <ul>
+    <li><strong>Data বর্ণনায়:</strong> Active → "The figure rose sharply." (বেশিরভাগ বাক্যে)</li>
+    <li><strong>Overview-এ:</strong> Passive → "It can be seen that..." | "A rise is observed."</li>
+    <li><strong>Projected data-তে:</strong> Passive preferred → "It is projected that..."</li>
+    <li><strong>Ideal ratio:</strong> ৭০% Active + ৩০% Passive।</li>
+  </ul>
+</div>
+
+<div class="slabel">Active Voice — Subject নিজেই কাজ করে</div>
+<div class="rbox"><h4 class="a">Structure: Subject + Verb + Object/Adverb</h4>
+  <ul>
+    <li>Subject স্পষ্ট থাকে এবং নিজেই কাজটি করে।</li>
+    <li>IELTS line graph-এ বেশিরভাগ বাক্য Active হওয়া উচিত — natural ও direct।</li>
+  </ul>
+</div>
+
+<div class="ex"><span class="ex-badge bup">Active — Past Simple (V2)</span>
+  <div class="ex-en">The number of visitors <mark>increased</mark> dramatically between 2000 and 2010.<br>Sales <mark>plummeted</mark> sharply after 2008 and <mark>reached</mark> their lowest point in 2010.<br>The figure <mark>climbed</mark> from 20 million to nearly 50 million over the decade.</div>
+  <div class="ex-bn">দর্শনার্থীর সংখ্যা নাটকীয়ভাবে বৃদ্ধি পেয়েছিল।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Active — Past + Irregular V2</span>
+  <div class="ex-en">The rate <mark>rose</mark> gradually and then <mark>fell</mark> sharply after 2008.<br>The market <mark>grew</mark> substantially throughout the period.<br>Numbers <mark>went up</mark> steadily before <mark>going down</mark> after the peak.</div>
+  <div class="ex-bn">rise→rose, fall→fell, grow→grew (irregular V2 মনে রাখুন)</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Active — Past Perfect (had + V3)</span>
+  <div class="ex-en">By 2005, the figure <mark>had risen</mark> to nearly double its 1990 level.<br>By the end of the period, sales <mark>had fallen</mark> to their lowest point in decades.<br>By 2010, production <mark>had grown</mark> substantially from its starting point.</div>
+  <div class="ex-bn">By + year → had + V3 (past perfect)</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Active — Present Simple (graph)</span>
+  <div class="ex-en">The graph <mark>shows</mark> a clear upward trend in energy consumption from 2010 onwards.<br>The line graph <mark>compares</mark> the usage of three transport modes over four decades.<br>The data <mark>reveals</mark> significant differences between the three countries.</div>
+  <div class="ex-bn">Graph describe করতে সবসময় Present Simple।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Active — Present Perfect (has/have + V3)</span>
+  <div class="ex-en">The rate <mark>has grown</mark> considerably since 2010, reaching its highest ever level.<br>Numbers <mark>have fallen</mark> dramatically since 2015, raising concerns.<br>The figure <mark>has fluctuated</mark> wildly over the past decade.</div>
+  <div class="ex-bn">Since / over the past → has/have + V3</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Active — Future</span>
+  <div class="ex-en">The figure <mark>will reach</mark> 100 million by 2030.<br>Experts <mark>predict</mark> that consumption <mark>will continue</mark> to rise.<br>The rate <mark>is projected to double</mark> by the end of the decade.</div>
+  <div class="ex-bn">Future / projected data-তে।</div>
+</div>
+
+<div class="slabel">Passive Voice — is / was / will be + V3</div>
+<div class="rbox"><h4 class="r">Structure — সব Tense-এ</h4>
+  <ul>
+    <li><strong>Present:</strong> <code>is/are + V3</code> → "A rise is observed."</li>
+    <li><strong>Past:</strong> <code>was/were + V3</code> → "A decline was recorded."</li>
+    <li><strong>Future:</strong> <code>will be + V3</code> | <code>is projected/expected to + V1</code></li>
+    <li><strong>Present Perfect:</strong> <code>has/have been + V3</code> → "A peak has been reached."</li>
+    <li><strong>Past Perfect:</strong> <code>had been + V3</code> → "By 2000, the target had been exceeded."</li>
+    <li><strong>Modal:</strong> <code>can/may + be + V3</code> → "A trend can be seen."</li>
+  </ul>
+  <div class="note-box">Passive-এ সবসময় V3 (past participle) ব্যবহার হয়। "was rise" ✗ | "was risen" ✗ | "was recorded" ✓</div>
+</div>
+
+<div class="ex"><span class="ex-badge bup">Passive — Present (is + V3)</span>
+  <div class="ex-en">A significant rise <mark>is observed</mark> in energy consumption after 2015.<br>An upward trend <mark>is noted</mark> across all three categories.<br>A clear difference <mark>is seen</mark> between the figures for X and Y.</div>
+  <div class="ex-bn">is/are + V3 — Overview ও formal description-এ।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Passive — Past (was + V3)</span>
+  <div class="ex-en">A sharp decline <mark>was recorded</mark> in 2008, following the global financial crisis.<br>A dramatic increase <mark>was witnessed</mark> in the early 2000s.<br>A significant rise <mark>was observed</strong> in the consumption of renewable energy after 2015.<br>A crossover point <mark>was reached</mark> around 2005, after which X overtook Y.</div>
+  <div class="ex-bn">was/were + V3 — formal past description-এ।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Passive — Modal (can be + V3)</span>
+  <div class="ex-en"><mark>It can be seen</mark> that the figure rose sharply in the first half of the period.<br><mark>It can be observed</mark> that gas remained the dominant source throughout.<br><mark>It is worth noting</mark> that the crossover occurred around 2005.<br><mark>It is apparent</mark> that nuclear power saw the most significant change.</div>
+  <div class="ex-bn">can/may + be + V3 — Overview ও observation-এ।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Passive — Future (is projected/expected)</span>
+  <div class="ex-en"><mark>It is projected</mark> that consumption will continue to rise significantly over the next decade.<br><mark>It is expected</mark> that the figure will reach 100 million by 2035.<br><mark>It is forecast</mark> that demand will decline sharply after the new regulations take effect.</div>
+  <div class="ex-bn">Future projection-এ Passive সবচেয়ে formal ও preferred।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Passive — Present Perfect (has been + V3)</span>
+  <div class="ex-en">A peak <mark>has been reached</mark> at approximately 80% — the highest level in the entire period.<br>A consistent upward trend <mark>has been maintained</mark> throughout the period.<br>A significant gap <mark>has been recorded</mark> between the highest and lowest figures.</div>
+  <div class="ex-bn">has/have been + V3 — recent observation-এ।</div>
+</div>
+<div class="ex"><span class="ex-badge bup">Passive — Past Perfect (had been + V3)</span>
+  <div class="ex-en">By 2010, the target <mark>had been exceeded</mark> by a considerable margin.<br>By the mid-2000s, a new record <mark>had been set</mark> in terms of energy production.<br>By 2008, the previous high <mark>had been surpassed</mark> by nearly 20%.</div>
+  <div class="ex-bn">By + year → had been + V3</div>
+</div>
+
+<div class="slabel">Active to Passive Conversion Table</div>
+<div class="rbox"><h4 class="b">Conversion Rule: Active → Passive</h4>
+  <ul>
+    <li><strong>Step 1:</strong> Active-এর Object → Passive-এর Subject হয়।</li>
+    <li><strong>Step 2:</strong> Verb → is/was/will be + V3 হয়।</li>
+    <li><strong>Step 3:</strong> Active-এর Subject → "by + agent" (সাধারণত বাদ দেওয়া হয়)।</li>
+  </ul>
+</div>
+<table class="vtbl">
+  <tr><th>Tense</th><th style="color:var(--amber-l)">Active</th><th style="color:var(--red)">Passive</th><th>নোট</th></tr>
+  <tr><td>Present</td><td>Sales <strong>increase</strong> every year.</td><td>An increase <strong>is recorded</strong> every year.</td><td class="vbn">is/are + V3</td></tr>
+  <tr><td>Past Simple</td><td>Sales <strong>increased</strong> by 20%.</td><td>An increase of 20% <strong>was recorded</strong>.</td><td class="vbn">was/were + V3</td></tr>
+  <tr><td>Past Perfect</td><td>By 2000, it <strong>had risen</strong> to 50m.</td><td>By 2000, 50m <strong>had been reached</strong>.</td><td class="vbn">had been + V3</td></tr>
+  <tr><td>Future</td><td>It <strong>will reach</strong> 100m by 2030.</td><td><strong>It is projected that</strong> 100m will be reached by 2030.</td><td class="vbn">is projected that</td></tr>
+  <tr><td>Pres. Perfect</td><td>The rate <strong>has risen</strong> sharply.</td><td>A sharp rise <strong>has been recorded</strong>.</td><td class="vbn">has/have been + V3</td></tr>
+  <tr><td>Modal</td><td>We <strong>can see</strong> an upward trend.</td><td><strong>It can be seen that</strong> there is an upward trend.</td><td class="vbn">can/may + be + V3</td></tr>
+</table>
+
+</div>
+
+<!-- ═══════════ FILLERS ═══════════ -->
+<div id="fillers" class="panel">
+
+<div class="slabel">Introduction Phrases — গ্রাফ বর্ণনা শুরু করার জন্য</div>
+<div class="pgrid">
+  <div class="pcard"><div class="pen">The line graph illustrates...</div><div class="pbn">লাইন গ্রাফটি চিত্রিত করে...</div><div class="pex">The line graph illustrates the changes in energy use from 1990 to 2010.</div></div>
+  <div class="pcard"><div class="pen">The graph depicts...</div><div class="pbn">গ্রাফটি চিত্রিত করে...</div><div class="pex">The graph depicts the population of three major cities from 1950 to 2010.</div></div>
+  <div class="pcard"><div class="pen">The graph presents information about...</div><div class="pbn">গ্রাফটি ... সম্পর্কে তথ্য উপস্থাপন করে</div><div class="pex">The graph presents information about transport usage across three modes.</div></div>
+  <div class="pcard"><div class="pen">The graph compares...</div><div class="pbn">গ্রাফটি তুলনা করে...</div><div class="pex">The graph compares the GDP of five nations over twenty years.</div></div>
+  <div class="pcard"><div class="pen">The graph outlines...</div><div class="pbn">গ্রাফটি রূপরেখা দেয়...</div><div class="pex">The graph outlines the proportion of internet users in three countries.</div></div>
+  <div class="pcard"><div class="pen">Information is provided about...</div><div class="pbn">... সম্পর্কে তথ্য দেওয়া হয়েছে</div><div class="pex">Information is provided about price fluctuations from 2005 to 2020.</div></div>
+  <div class="pcard"><div class="pen">The given line graph shows...</div><div class="pbn">প্রদত্ত লাইন গ্রাফটি দেখায়...</div><div class="pex">The given line graph shows changes in three transport methods over 40 years.</div></div>
+  <div class="pcard"><div class="pen">The line graph tracks...</div><div class="pbn">লাইন গ্রাফটি অনুসরণ করে...</div><div class="pex">The line graph tracks the rise and fall of coffee prices over 15 years.</div></div>
+</div>
+
+<div class="slabel">Overview Phrases — সামগ্রিক চিত্র বলার জন্য</div>
+<div class="pgrid">
+  <div class="pcard"><div class="pen">Overall, it is clear that...</div><div class="pbn">সামগ্রিকভাবে, এটি স্পষ্ট যে...</div><div class="pex">Overall, it is clear that oil use rose sharply over the period.</div></div>
+  <div class="pcard"><div class="pen">In general, the most notable feature is...</div><div class="pbn">সাধারণভাবে, সবচেয়ে উল্লেখযোগ্য বৈশিষ্ট্য...</div><div class="pex">In general, the most notable feature is the dramatic rise in car usage.</div></div>
+  <div class="pcard"><div class="pen">As an overview, it is evident that...</div><div class="pbn">সামগ্রিক দৃষ্টিতে স্পষ্ট যে...</div><div class="pex">As an overview, it is evident that all categories grew throughout.</div></div>
+  <div class="pcard"><div class="pen">Overall, the data reveals that...</div><div class="pbn">সামগ্রিকভাবে, তথ্য প্রকাশ করে যে...</div><div class="pex">Overall, the data reveals a consistent upward trend across all three lines.</div></div>
+  <div class="pcard"><div class="pen">... experienced the most dramatic increase</div><div class="pbn">সবচেয়ে নাটকীয় বৃদ্ধি পেয়েছিল</div><div class="pex">Nuclear power experienced the most dramatic increase over the period.</div></div>
+  <div class="pcard"><div class="pen">... remained the dominant / least popular</div><div class="pbn">সবচেয়ে প্রধান / কম জনপ্রিয় ছিল</div><div class="pex">Gas remained the dominant source of electricity throughout the period.</div></div>
+  <div class="pcard"><div class="pen">Perhaps the most striking aspect is...</div><div class="pbn">সম্ভবত সবচেয়ে আকর্ষণীয় বিষয় হল...</div><div class="pex">Perhaps the most striking aspect is the crossover between X and Y around 2005.</div></div>
+  <div class="pcard"><div class="pen">... showed the most significant change</div><div class="pbn">সবচেয়ে উল্লেখযোগ্য পরিবর্তন দেখিয়েছে</div><div class="pex">Road transport showed the most significant change throughout the period.</div></div>
+</div>
+
+<div class="slabel">Time Reference Phrases — সময় নির্দেশের জন্য</div>
+<div class="pgrid">
+  <div class="pcard"><div class="pen">Between [year] and [year]</div><div class="pbn">... থেকে ... এর মধ্যে</div><div class="pex">Between 1990 and 2000, the figure rose sharply.</div></div>
+  <div class="pcard"><div class="pen">From [year] to [year]</div><div class="pbn">... সাল থেকে ... পর্যন্ত</div><div class="pex">From 1995 to 2005, production declined steadily.</div></div>
+  <div class="pcard"><div class="pen">By [year] / By the end of...</div><div class="pbn">... সালের মধ্যে → had + V3</div><div class="pex">By 2010, it had reached its peak of 80 million.</div></div>
+  <div class="pcard"><div class="pen">Over the period / Throughout</div><div class="pbn">এই সময়কালে / পুরো সময় জুড়ে</div><div class="pex">Throughout the period, gas remained the dominant source.</div></div>
+  <div class="pcard"><div class="pen">Over the following [decade/years]</div><div class="pbn">পরবর্তী দশকে / বছরগুলোতে</div><div class="pex">Over the following decade, the figure rose further by 20%.</div></div>
+  <div class="pcard"><div class="pen">At the beginning / By the end</div><div class="pbn">শুরুতে / শেষে</div><div class="pex">At the beginning of the period, the figure stood at just 10 million.</div></div>
+  <div class="pcard"><div class="pen">In the first/second half of the period</div><div class="pbn">প্রথম / দ্বিতীয়ার্ধে</div><div class="pex">In the first half of the period, prices rose steadily.</div></div>
+  <div class="pcard"><div class="pen">After [year] / Following [year]</div><div class="pbn">... সালের পরে</div><div class="pex">After 2000, the figure began to decline gradually.</div></div>
+  <div class="pcard"><div class="pen">During this period</div><div class="pbn">এই সময়কালে</div><div class="pex">During this period, significant fluctuations were observed.</div></div>
+  <div class="pcard"><div class="pen">Over a [X]-year period</div><div class="pbn">একটি [X] বছরের সময়কালে</div><div class="pex">Over a fifteen-year period from 2000 to 2015, internet access grew.</div></div>
+</div>
+
+<div class="slabel">Contrast & Comparison Phrases</div>
+<div class="pgrid">
+  <div class="pcard"><div class="pen">In contrast / By contrast</div><div class="pbn">বিপরীতভাবে</div><div class="pex">In contrast, X fell sharply while Y rose significantly.</div></div>
+  <div class="pcard"><div class="pen">In contrast to [X], [Y]...</div><div class="pbn">X-এর বিপরীতে, Y...</div><div class="pex">In contrast to nuclear, gas remained relatively stable throughout.</div></div>
+  <div class="pcard"><div class="pen">Meanwhile</div><div class="pbn">এদিকে / একই সময়ে</div><div class="pex">Meanwhile, oil consumption dropped by 10% over the same period.</div></div>
+  <div class="pcard"><div class="pen">Similarly / Likewise</div><div class="pbn">একইভাবে</div><div class="pex">Similarly, gas usage also declined after 2005, though less dramatically.</div></div>
+  <div class="pcard"><div class="pen">However / Nevertheless</div><div class="pbn">তবে / তবুও</div><div class="pex">However, this upward trend reversed sharply in 2010.</div></div>
+  <div class="pcard"><div class="pen">Although / Even though / Whereas</div><div class="pbn">যদিও / যেখানে</div><div class="pex">Although X fell, Y continued to rise throughout the period.</div></div>
+  <div class="pcard"><div class="pen">Despite / In spite of + V-ing</div><div class="pbn">সত্ত্বেও</div><div class="pex">Despite fluctuating, the overall trend remained upward.</div></div>
+  <div class="pcard"><div class="pen">... overtook / surpassed / exceeded</div><div class="pbn">ছাড়িয়ে গেল</div><div class="pex">Japan overtook Germany around 2010, reaching the highest level.</div></div>
+  <div class="pcard"><div class="pen">... remained consistently higher/lower than</div><div class="pbn">সবসময় বেশি/কম ছিল</div><div class="pex">X remained consistently higher than Y throughout the entire period.</div></div>
+  <div class="pcard"><div class="pen">Both X and Y / Neither X nor Y</div><div class="pbn">X এবং Y উভয়ই</div><div class="pex">Both cities showed an upward trend, though at different rates.</div></div>
+  <div class="pcard"><div class="pen">At no point did...</div><div class="pbn">কোনো পর্যায়েই না... (Advanced)</div><div class="pex">At no point did tea prices exceed half those of coffee.</div></div>
+  <div class="pcard"><div class="pen">Notably / Interestingly / Strikingly</div><div class="pbn">উল্লেখযোগ্যভাবে</div><div class="pex">Notably, 2000 saw the sharpest increase across all categories.</div></div>
+</div>
+
+<div class="slabel">Addition & Sequence Phrases</div>
+<div class="pgrid">
+  <div class="pcard"><div class="pen">Furthermore / Moreover</div><div class="pbn">তদুপরি / এছাড়াও</div><div class="pex">Furthermore, a second upward trend can be observed after 2010.</div></div>
+  <div class="pcard"><div class="pen">In addition / Additionally</div><div class="pbn">এছাড়া</div><div class="pex">In addition, another pattern is clearly visible in the data.</div></div>
+  <div class="pcard"><div class="pen">Following this / Subsequently</div><div class="pbn">এরপরে / পরবর্তীতে</div><div class="pex">Subsequently, the figures rose again sharply after 2005.</div></div>
+  <div class="pcard"><div class="pen">Before + V-ing / After + V-ing</div><div class="pbn">... করার আগে / পরে</div><div class="pex">Before rising again, it fell slightly to its lowest point in 2003.</div></div>
+  <div class="pcard"><div class="pen">At this point / At this stage</div><div class="pbn">এই মুহূর্তে</div><div class="pex">At this point, the figure began to stabilise around 30%.</div></div>
+  <div class="pcard"><div class="pen">This was followed by...</div><div class="pbn">এরপরে ছিল...</div><div class="pex">This was followed by a gradual recovery over the next five years.</div></div>
+</div>
+
+<div class="slabel">Number & Data Phrases</div>
+<div class="pgrid">
+  <div class="pcard"><div class="pen">approximately / roughly / around</div><div class="pbn">প্রায়</div><div class="pex">approximately 30 million / roughly 50% / around €3 per kilogram</div></div>
+  <div class="pcard"><div class="pen">nearly / almost / just under</div><div class="pbn">প্রায় / সামান্য কম</div><div class="pex">nearly 50% / almost double / just under 20 million</div></div>
+  <div class="pcard"><div class="pen">just over / slightly above</div><div class="pbn">সামান্য বেশি</div><div class="pex">just over 20 million / slightly above 40%</div></div>
+  <div class="pcard"><div class="pen">reached a peak of / peaked at</div><div class="pbn">সর্বোচ্চে পৌঁছাল</div><div class="pex">It peaked at 80% in 2005. / It reached a peak of 400TWh by 2005.</div></div>
+  <div class="pcard"><div class="pen">fell to a low of / bottomed out at</div><div class="pbn">সর্বনিম্নে নামল</div><div class="pex">It bottomed out at just 10% in 2008. / It fell to a low of €2 in 2013.</div></div>
+  <div class="pcard"><div class="pen">doubled / tripled / quadrupled</div><div class="pbn">দ্বিগুণ / তিনগুণ / চারগুণ</div><div class="pex">The figure doubled by 2000. / Production tripled over the period.</div></div>
+  <div class="pcard"><div class="pen">stood at / accounted for</div><div class="pbn">ছিল / হিসাব করলে</div><div class="pex">In 2000, the figure stood at 25 million. / X accounted for 40% of total.</div></div>
+  <div class="pcard"><div class="pen">increased/decreased by [amount]</div><div class="pbn">... পরিমাণে বাড়ল/কমল</div><div class="pex">increased by 20% / fell by half / decreased by 15 percentage points</div></div>
+  <div class="pcard"><div class="pen">more than double / over three times</div><div class="pbn">দ্বিগুণেরও বেশি</div><div class="pex">more than double the 1990 figure / over three times its original level</div></div>
+  <div class="pcard"><div class="pen">began the period at / started at</div><div class="pbn">শুরু হয়েছিল</div><div class="pex">Road transport began the period at approximately 70 billion tonne-km.</div></div>
+</div>
+
+</div>
+
+<!-- ═══════════ ALL RULES ═══════════ -->
+<div id="rules" class="panel">
+
+<div class="slabel">Structure Rules — Task Achievement</div>
+<div class="rbox"><h4 class="g">4-Paragraph Formula — অবশ্যই মানতে হবে</h4>
+  <ul>
+    <li><strong>Intro (~30w):</strong> Paraphrase — হুবহু copy নয়। What + Where + When।</li>
+    <li><strong>Overview (~40w):</strong> সবচেয়ে বড় ২টি feature — কোনো specific number নয়।</li>
+    <li><strong>Body 1 (~50w):</strong> সবচেয়ে dominant line — specific numbers, years সহ।</li>
+    <li><strong>Body 2 (~50w):</strong> বাকি line(s) — comparison করুন।</li>
+  </ul>
+  <div class="note-box">Overview না থাকলে Band 5-এর বেশি পাওয়া কঠিন।</div>
+</div>
+
+<div class="slabel">Tense Rules — Grammatical Range & Accuracy</div>
+<div class="rbox"><h4 class="b">কখন কোন Tense?</h4>
+  <ul>
+    <li><strong>Past date:</strong> Past Simple → V2 (rose, fell, grew — irregular মনে রাখুন)</li>
+    <li><strong>By [date]:</strong> Past Perfect → had + V3 (risen, fallen, grown)</li>
+    <li><strong>Graph describes:</strong> Present Simple → shows, illustrates, compares</li>
+    <li><strong>Since / recently:</strong> Present Perfect → has/have + V3</li>
+    <li><strong>Future/projected:</strong> will + V1 | is projected/expected/forecast to + V1</li>
+    <li><strong>By [future year]:</strong> Future Perfect → will have + V3</li>
+  </ul>
+  <div class="note-box">rise→rose→risen | fall→fell→fallen | grow→grew→grown | go→went→gone</div>
+</div>
+
+<div class="slabel">Vocabulary Rules — Lexical Resource</div>
+<div class="rbox"><h4 class="a">Word Variety নিশ্চিত করুন</h4>
+  <ul>
+    <li>একই শব্দ বারবার নয়: increased → rose → climbed → grew (ঘুরিয়ে ব্যবহার করুন)</li>
+    <li>Verb ↔ Noun: "increased sharply" ↔ "a sharp increase"</li>
+    <li>Adverb + Verb: "increased <strong>sharply</strong>" ✓ | Adjective + Noun: "a <strong>sharp</strong> increase" ✓</li>
+    <li>Noun + Adverb: "increase <strong>sharply</strong>" = WRONG</li>
+    <li>Approximation: "approximately", "roughly", "just over", "nearly" — সবসময় ব্যবহার করুন।</li>
+  </ul>
+</div>
+
+<div class="slabel">Sentence Rules — Grammatical Range</div>
+<div class="rbox"><h4 class="p">Sentence Variety</h4>
+  <ul>
+    <li>প্রতিটি paragraph-এ কমপক্ষে ২ ধরনের sentence (Simple + Complex)।</li>
+    <li>শুধু Simple বাক্য → Band 5-6। Complex বাক্য → Band 7+।</li>
+    <li>"Having + V3" Participle clause → Band 8+।</li>
+    <li>Subject শুরু vary করুন: "The figure...", "Sales...", "There was...", "Although...", "Having peaked..."</li>
+    <li>"Although... but" — একসাথে ব্যবহার করবে না।</li>
+  </ul>
+</div>
+
+<div class="slabel">Common Mistakes — সবচেয়ে বেশি হওয়া ভুল</div>
+<div class="rbox"><h4 class="r">এই ভুলগুলো এড়িয়ে চলুন</h4>
+  <ul>
+    <li>"The graph says..." → "The graph <strong>shows / illustrates / depicts</strong>..."</li>
+    <li>Past data-তে Present: "In 1990, it <strong>increases</strong>." → "it <strong>increased</strong>."</li>
+    <li>"rise → <strong>rised</strong>" → "rise → <strong>rose</strong>" (irregular V2)</li>
+    <li>"fall → <strong>falled</strong>" → "fall → <strong>fell</strong>" (irregular V2)</li>
+    <li>"has <strong>rose</strong>" → "has <strong>risen</strong>" (V3, not V2)</li>
+    <li>"has <strong>fell</strong>" → "has <strong>fallen</strong>" (V3, not V2)</li>
+    <li>প্রশ্নের ভাষা হুবহু copy → Paraphrase করুন।</li>
+    <li>Overview-এ specific numbers → Body-তে দাও।</li>
+    <li>"Although X fell <strong>but</strong> Y rose." → "Although X fell, Y rose." (although + but = ✗)</li>
+    <li>"increase <strong>sharply</strong>" (noun + adverb) → "a <strong>sharp</strong> increase" or "increased sharply" ✓</li>
+    <li>Body-তে data না দেওয়া → "from 20% to 45% between 1990 and 2000" দাও।</li>
+    <li>সব বাক্য "The figure + V2" দিয়ে শুরু → Variety করুন।</li>
+  </ul>
+</div>
+
+<div class="rbox"><h4 class="g">Word Count & Time Management</h4>
+  <ul>
+    <li>Minimum: <strong>150 words</strong> — এর কম = Task Achievement penalty।</li>
+    <li>Ideal: <strong>170–200 words</strong> — বেশি লিখলে ভুল হওয়ার সম্ভাবনা বাড়ে।</li>
+    <li>মোট সময়: <strong>20 minutes</strong> — 3 planning + 15 writing + 2 checking।</li>
+    <li>Checking-এ: Tense সঠিক কিনা, irregular verbs, overview আছে কিনা।</li>
+  </ul>
+</div>
+
+</div>
+
+<footer>
+  <div>
+    <div class="f-brand">BandUpBD</div>
+    <div class="f-info">Habibur Rahman Sajal · Writing Task 1 · Line Graph Complete Masterclass</div>
+  </div>
+  <div class="f-band">Band 8+ Target</div>
+</footer>
+
+<script>
+function show(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:document.querySelector('.tab-nav').offsetTop-60,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
