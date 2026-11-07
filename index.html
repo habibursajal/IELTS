@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BandUpBD — IELTS Complete Resource by Habibur Rahman Sajal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #07111c;
+  --bg2:       #0d1f30;
+  --bg3:       #122840;
+  --bg4:       #0a1826;
+  --border:    #1a3147;
+  --border2:   #254d6e;
+  --accent:    #3b82f6;
+  --accent-h:  #60a5fa;
+  --amber:     #f59e0b;
+  --amber-l:   #fcd34d;
+  --amber-d:   #b45309;
+  --text:      #e2eaf4;
+  --text2:     #94adc4;
+  --text3:     #4d6a85;
+  --green:     #10b981;
+  --green-l:   #34d399;
+  --purple:    #8b5cf6;
+  --purple-l:  #a78bfa;
+  --teal:      #06b6d4;
+  --pink:      #ec4899;
+  --red:       #ef4444;
+  --gold:      #eab308;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top,0px);
+  padding-bottom: env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f1f5fb;--bg2:#ffffff;--bg3:#e8eef8;--bg4:#f8faff;
+  --border:#d4e0f0;--border2:#b0c8e8;
+  --accent:#2563eb;--accent-h:#1d4ed8;
+  --amber:#d97706;--amber-l:#f59e0b;--amber-d:#92400e;
+  --text:#0f1e2e;--text2:#3d5a78;--text3:#8aa4be;
+  --green:#059669;--green-l:#10b981;
+  --purple:#7c3aed;--purple-l:#8b5cf6;
+  --teal:#0891b2;--pink:#db2777;--red:#dc2626;--gold:#ca8a04;
+}}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ══ NAV ══ */
+nav{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:100;
+  height:60px;padding:0 clamp(16px,4vw,56px);
+  display:flex;align-items:center;justify-content:space-between;
+  background:color-mix(in srgb,var(--bg) 85%,transparent);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-left{display:flex;align-items:center;gap:10px;}
+.nav-logo{
+  font-size:19px;font-weight:900;letter-spacing:-.03em;
+  background:linear-gradient(135deg,var(--amber),var(--amber-l));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.nav-pill{
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;
+  background:color-mix(in srgb,var(--green) 15%,transparent);
+  color:var(--green-l);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);
+  letter-spacing:.05em;
+}
+.nav-links{display:flex;gap:2px;}
+.nav-links a{
+  font-size:13px;font-weight:500;color:var(--text2);
+  text-decoration:none;padding:6px 12px;border-radius:8px;
+  transition:color .15s,background .15s;
+}
+.nav-links a:hover{color:var(--text);background:var(--border);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.search-btn{
+  display:flex;align-items:center;gap:7px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:7px 13px;
+  font-size:13px;font-family:'Outfit',sans-serif;
+  color:var(--text3);cursor:pointer;transition:border-color .15s;
+}
+.search-btn:hover{border-color:var(--border2);color:var(--text2);}
+.search-btn kbd{
+  font-size:10px;padding:1px 5px;border-radius:4px;
+  background:var(--border);color:var(--text3);font-family:inherit;
+}
+@media(max-width:700px){.nav-links{display:none;}.search-btn kbd{display:none;}}
+@media(max-width:480px){.search-btn span{display:none;}}
+
+/* ══ SEARCH OVERLAY ══ */
+.search-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(7,17,28,.85);backdrop-filter:blur(8px);
+  align-items:flex-start;justify-content:center;padding-top:80px;
+}
+.search-overlay.open{display:flex;}
+.search-box{
+  width:min(600px,92vw);background:var(--bg2);
+  border:1px solid var(--border2);border-radius:16px;
+  overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);
+}
+.search-input-wrap{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);}
+.search-input-wrap svg{flex-shrink:0;color:var(--text3);}
+#searchInput{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:17px;font-family:'Outfit',sans-serif;color:var(--text);
+}
+#searchInput::placeholder{color:var(--text3);}
+.search-close{
+  background:var(--border);border:none;border-radius:6px;
+  padding:4px 8px;font-size:11px;color:var(--text3);
+  cursor:pointer;font-family:'Outfit',sans-serif;
+}
+#searchResults{padding:10px;max-height:360px;overflow-y:auto;}
+.search-result-item{
+  display:block;padding:11px 14px;border-radius:10px;
+  text-decoration:none;color:var(--text);
+  transition:background .12s;
+}
+.search-result-item:hover{background:var(--border);}
+.sri-tag{font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px;letter-spacing:.05em;}
+.sri-title{font-size:14px;font-weight:600;}
+.sri-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+.search-empty{padding:24px;text-align:center;color:var(--text3);font-size:14px;}
+
+/* ══ HERO ══ */
+.hero{
+  position:relative;overflow:hidden;
+  padding:clamp(60px,10vw,110px) clamp(16px,5vw,56px) clamp(50px,8vw,90px);
+  border-bottom:1px solid var(--border);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;
+  opacity:.18;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%);
+}
+.hero-glow{
+  position:absolute;top:-100px;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;border-radius:50%;
+  background:radial-gradient(ellipse,color-mix(in srgb,var(--accent) 18%,transparent) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-content{position:relative;z-index:1;max-width:720px;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:color-mix(in srgb,var(--amber) 10%,transparent);
+  border:1px solid color-mix(in srgb,var(--amber) 25%,transparent);
+  border-radius:20px;padding:5px 14px 5px 8px;
+  font-size:12px;font-weight:600;color:var(--amber-l);
+  margin-bottom:28px;
+}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(.85);}}
+.hero h1{
+  font-size:clamp(2.6rem,7.5vw,5rem);font-weight:900;
+  line-height:.96;letter-spacing:-.04em;margin-bottom:14px;
+}
+.hero h1 .line1{display:block;color:var(--text);}
+.hero h1 .line2{
+  display:block;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--purple-l) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(14px,2vw,17px);line-height:1.6;
+  color:var(--text2);max-width:520px;margin-bottom:36px;
+}
+.hero-sub strong{color:var(--text);font-weight:600;}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:48px;}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:#fff;
+  font-size:14px;font-weight:700;font-family:'Outfit',sans-serif;
+  padding:11px 22px;border-radius:10px;border:none;
+  cursor:pointer;text-decoration:none;
+  transition:background .15s,transform .15s;
+}
+.btn-primary:hover{background:var(--accent-h);transform:translateY(-1px);}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;color:var(--text2);
+  font-size:14px;font-weight:600;font-family:'Outfit',sans-serif;
+  padding:11px 22px;border-radius:10px;
+  border:1px solid var(--border2);cursor:pointer;text-decoration:none;
+  transition:border-color .15s,color .15s;
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--text);}
+.hero-stats{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;width:fit-content;}
+.stat-item{
+  padding:16px 28px;display:flex;flex-direction:column;gap:4px;
+  border-right:1px solid var(--border);
+}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.02em;line-height:1;}
+.stat-label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.04em;}
+@media(max-width:500px){.stat-item{padding:12px 18px;}.stat-num{font-size:20px;}}
+
+/* ══ PROGRESS BAR SECTION ══ */
+.progress-section{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:20px clamp(16px,5vw,56px);
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+}
+.progress-label{font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap;}
+.progress-track{flex:1;min-width:200px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--purple-l));transition:width .8s ease;}
+.progress-pct{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.progress-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;
+  border:1px solid;cursor:pointer;transition:all .15s;
+}
+.chip.active{color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);}
+.chip.inactive{color:var(--text3);border-color:var(--border);}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ══ MAIN ══ */
+main{max-width:1140px;margin:0 auto;padding:clamp(28px,4vw,52px) clamp(16px,4vw,56px);}
+
+/* ══ SECTION GROUP ══ */
+.section-group{margin-bottom:52px;}
+.section-group.hidden{display:none;}
+.section-header{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+.sec-icon{
+  width:40px;height:40px;border-radius:11px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.sec-info{flex:1;}
+.sec-title{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.01em;}
+.sec-desc{font-size:12px;color:var(--text3);margin-top:2px;}
+.sec-badge{
+  font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;
+  background:var(--border);color:var(--text3);white-space:nowrap;
+}
+.sec-badge.has-live{
+  background:color-mix(in srgb,var(--green) 15%,transparent);
+  color:var(--green-l);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);
+}
+
+/* ══ CARD GRID ══ */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:14px;}
+
+/* ══ GUIDE CARD ══ */
+.guide-card{
+  display:block;text-decoration:none;position:relative;overflow:hidden;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:22px;
+  transition:border-color .2s,transform .2s,background .2s,box-shadow .2s;
+}
+.guide-card:hover{
+  border-color:var(--card-c,var(--accent));
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(0,0,0,.35);
+  background:var(--bg3);
+}
+.guide-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--card-c,var(--accent));opacity:0;transition:opacity .2s;
+}
+.guide-card:hover::after{opacity:1;}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-tag{
+  font-size:10px;font-weight:700;letter-spacing:.07em;
+  color:var(--card-c,var(--accent));
+  background:color-mix(in srgb,var(--card-c,var(--accent)) 13%,transparent);
+  padding:4px 10px;border-radius:20px;
+}
+.card-status-live{
+  font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;
+  background:color-mix(in srgb,var(--green) 15%,transparent);
+  color:var(--green-l);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);
+}
+.card-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:8px;}
+.card-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.card-footer{display:flex;align-items:center;justify-content:space-between;}
+.card-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.card-chip{
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;
+  background:var(--border);color:var(--text3);
+}
+.card-arrow{
+  font-size:18px;color:var(--text3);
+  transition:color .2s,transform .2s;line-height:1;
+}
+.guide-card:hover .card-arrow{color:var(--card-c,var(--accent));transform:translate(3px,-1px);}
+
+/* ══ SOON CARD ══ */
+.soon-card{
+  background:transparent;border:1px dashed var(--border);
+  border-radius:16px;padding:18px 20px;
+  display:flex;align-items:center;gap:14px;
+  transition:border-color .15s;
+}
+.soon-card:hover{border-color:var(--border2);}
+.soon-icon{
+  width:38px;height:38px;border-radius:10px;flex-shrink:0;
+  background:var(--border);display:flex;align-items:center;
+  justify-content:center;font-size:17px;
+}
+.soon-title{font-size:13px;font-weight:600;color:var(--text2);}
+.soon-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+/* ══ BAND TRACKER ══ */
+.band-tracker{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:18px;padding:clamp(20px,4vw,32px);
+  margin-bottom:52px;
+}
+.bt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.bt-title{font-size:16px;font-weight:700;color:var(--text);}
+.bt-target{
+  font-size:13px;font-weight:700;padding:5px 14px;border-radius:20px;
+  background:linear-gradient(135deg,var(--gold),var(--amber));
+  color:#fff;letter-spacing:.02em;
+}
+.bt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.bt-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.bt-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.bt-item-label{font-size:13px;font-weight:600;color:var(--text2);}
+.bt-item-score{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.02em;}
+.bt-bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden;}
+.bt-bar-fill{height:100%;border-radius:99px;transition:width 1s ease;}
+.bt-status{font-size:11px;color:var(--text3);margin-top:8px;}
+
+/* ══ FOOTER ══ */
+footer{
+  border-top:1px solid var(--border);
+  padding:40px clamp(16px,5vw,56px);
+  display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;
+}
+.footer-left .fl-brand{
+  font-size:22px;font-weight:900;letter-spacing:-.03em;
+  background:linear-gradient(135deg,var(--amber),var(--amber-l));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px;
+}
+.footer-left .fl-name{font-size:13px;color:var(--text2);margin-bottom:10px;}
+.footer-left .fl-desc{font-size:12px;color:var(--text3);line-height:1.7;max-width:380px;}
+.footer-right{text-align:right;}
+.footer-right .fr-label{font-size:11px;color:var(--text3);margin-bottom:8px;letter-spacing:.05em;}
+.band-pill{
+  display:inline-block;font-size:28px;font-weight:900;
+  padding:8px 20px;border-radius:12px;
+  background:linear-gradient(135deg,var(--gold),var(--amber));
+  color:#fff;letter-spacing:-.02em;
+}
+@media(max-width:560px){footer{grid-template-columns:1fr;}.footer-right{text-align:left;}}
+@media(max-width:420px){.card-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="searchInput" placeholder="Search guides… e.g. line graph, tense, vocabulary" autocomplete="off" oninput="doSearch(this.value)">
+      <button class="search-close" onclick="closeSearch()">ESC</button>
+    </div>
+    <div id="searchResults"><div class="search-empty">Start typing to search all guides…</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="#" style="text-decoration:none;" class="nav-logo">BandUpBD</a>
+    <span class="nav-pill">IELTS</span>
+  </div>
+  <div class="nav-links">
+    <a href="#writing">Writing</a>
+    <a href="#reading">Reading</a>
+    <a href="#listening">Listening</a>
+    <a href="#speaking">Speaking</a>
+    <a href="#grammar">Grammar</a>
+  </div>
+  <div class="nav-right">
+    <button class="search-btn" onclick="openSearch()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search guides</span>
+      <kbd>⌘K</kbd>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Bangla অর্থসহ — সম্পূর্ণ বাংলায় ব্যাখ্যা
+    </div>
+    <h1>
+      <span class="line1">IELTS-এ</span>
+      <span class="line2">Band 8+ অর্জন করো</span>
+    </h1>
+    <p class="hero-sub">
+      <strong>Habibur Rahman Sajal</strong>-এর তৈরি সম্পূর্ণ IELTS preparation platform।
+      Writing, Reading, Listening ও Speaking — প্রতিটি section-এর জন্য বিস্তারিত guides, vocabulary এবং practice materials।
+    </p>
+    <div class="hero-actions">
+      <a href="#writing" class="btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        Guides দেখো
+      </a>
+      <button class="btn-secondary" onclick="openSearch()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Guide খোঁজো
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" id="liveCount">1</span>
+        <span class="stat-label">Live Guides</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">26</span>
+        <span class="stat-label">Planned Guides</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">Band 8+</span>
+        <span class="stat-label">Target Score</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">Free</span>
+        <span class="stat-label">Always Free</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRESS BAR -->
+<div class="progress-section">
+  <span class="progress-label">Overall progress</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:4%"></div></div>
+  <span class="progress-pct" id="progressPct">1 / 26</span>
+  <div class="progress-chips">
+    <span class="chip active" data-filter="all" onclick="filterSection('all',this)">All</span>
+    <span class="chip inactive" data-filter="writing" onclick="filterSection('writing',this)">Writing</span>
+    <span class="chip inactive" data-filter="reading" onclick="filterSection('reading',this)">Reading</span>
+    <span class="chip inactive" data-filter="listening" onclick="filterSection('listening',this)">Listening</span>
+    <span class="chip inactive" data-filter="speaking" onclick="filterSection('speaking',this)">Speaking</span>
+    <span class="chip inactive" data-filter="grammar" onclick="filterSection('grammar',this)">Grammar</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+<!-- BAND SCORE TRACKER -->
+<div class="band-tracker">
+  <div class="bt-header">
+    <div class="bt-title">Band Score Tracker — তোমার লক্ষ্য</div>
+    <div class="bt-target">🎯 Target: Band 8+</div>
+  </div>
+  <div class="bt-grid">
+    <div class="bt-item">
+      <div class="bt-item-top">
+        <span class="bt-item-label">Writing</span>
+        <span class="bt-item-score" style="color:#3b82f6">8.0</span>
+      </div>
+      <div class="bt-bar"><div class="bt-bar-fill" style="width:85%;background:#3b82f6"></div></div>
+      <div class="bt-status">Task 1 & Task 2 mastery needed</div>
+    </div>
+    <div class="bt-item">
+      <div class="bt-item-top">
+        <span class="bt-item-label">Reading</span>
+        <span class="bt-item-score" style="color:#10b981">8.5</span>
+      </div>
+      <div class="bt-bar"><div class="bt-bar-fill" style="width:90%;background:#10b981"></div></div>
+      <div class="bt-status">Speed + accuracy strategy</div>
+    </div>
+    <div class="bt-item">
+      <div class="bt-item-top">
+        <span class="bt-item-label">Listening</span>
+        <span class="bt-item-score" style="color:#8b5cf6">8.0</span>
+      </div>
+      <div class="bt-bar"><div class="bt-bar-fill" style="width:85%;background:#8b5cf6"></div></div>
+      <div class="bt-status">Note-taking + distractor skills</div>
+    </div>
+    <div class="bt-item">
+      <div class="bt-item-top">
+        <span class="bt-item-label">Speaking</span>
+        <span class="bt-item-score" style="color:#f59e0b">7.5</span>
+      </div>
+      <div class="bt-bar"><div class="bt-bar-fill" style="width:78%;background:#f59e0b"></div></div>
+      <div class="bt-status">Fluency + lexical resource</div>
+    </div>
+  </div>
+</div>
+
+<!-- WRITING TASK 1 -->
+<div class="section-group" id="writing" data-section="writing">
+  <div class="section-header">
+    <div class="sec-icon" style="background:color-mix(in srgb,#3b82f6 15%,transparent);">📝</div>
+    <div class="sec-info">
+      <div class="sec-title">Writing Task 1</div>
+      <div class="sec-desc">Graph, chart, diagram ও process description guides — Bangla অর্থসহ</div>
+    </div>
+    <div class="sec-badge has-live">1 live · 5 soon</div>
+  </div>
+  <div class="card-grid">
+    <a class="guide-card" href="Writing Task 1/line-graph.html" style="--card-c:#3b82f6">
+      <div class="card-top">
+        <span class="card-tag">Line Graph</span>
+        <span class="card-status-live">Live</span>
+      </div>
+      <div class="card-title">Line Graph — Complete Writing Guide</div>
+      <div class="card-desc">V1/V2/V3 vocabulary, tense rules, all sentence types, active/passive voice — Bangla অর্থ ও examples সহ।</div>
+      <div class="card-footer">
+        <div class="card-chips">
+          <span class="card-chip">Vocabulary</span>
+          <span class="card-chip">Grammar</span>
+          <span class="card-chip">Tense</span>
+        </div>
+        <span class="card-arrow">↗</span>
+      </div>
+    </a>
+    <div class="soon-card"><div class="soon-icon">📊</div><div><div class="soon-title">Bar Chart Guide</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🥧</div><div><div class="soon-title">Pie Chart Guide</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📋</div><div><div class="soon-title">Table Description</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔄</div><div><div class="soon-title">Process Diagram</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🗺️</div><div><div class="soon-title">Map Description</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- WRITING TASK 2 -->
+<div class="section-group" data-section="writing">
+  <div class="section-header">
+    <div class="sec-icon" style="background:color-mix(in srgb,#ec4899 15%,transparent);">✍️</div>
+    <div class="sec-info">
+      <div class="sec-title">Writing Task 2</div>
+      <div class="sec-desc">Essay types, argument structure, thesis statements ও Band 8 vocabulary</div>
+    </div>
+    <div class="sec-badge">0 live · 5 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">💬</div><div><div class="soon-title">Opinion Essay</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">⚖️</div><div><div class="soon-title">Discussion Essay</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔍</div><div><div class="soon-title">Problem-Solution Essay</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📐</div><div><div class="soon-title">Advantages & Disadvantages</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📌</div><div><div class="soon-title">Two-part Question Essay</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- READING -->
+<div class="section-group" id="reading" data-section="reading">
+  <div class="section-header">
+    <div class="sec-icon" style="background:color-mix(in srgb,#10b981 15%,transparent);">📖</div>
+    <div class="sec-info">
+      <div class="sec-title">Reading</div>
+      <div class="sec-desc">Skimming, scanning, question strategies ও academic vocabulary</div>
+    </div>
+    <div class="sec-badge">0 live · 5 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">🎯</div><div><div class="soon-title">True / False / Not Given</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔗</div><div><div class="soon-title">Matching Headings</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">✏️</div><div><div class="soon-title">Summary Completion</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📝</div><div><div class="soon-title">Multiple Choice Strategy</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📚</div><div><div class="soon-title">Academic Word List</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- LISTENING -->
+<div class="section-group" id="listening" data-section="listening">
+  <div class="section-header">
+    <div class="sec-icon" style="background:color-mix(in srgb,#06b6d4 15%,transparent);">🎧</div>
+    <div class="sec-info">
+      <div class="sec-title">Listening</div>
+      <div class="sec-desc">Section types, note-taking strategies ও answer techniques</div>
+    </div>
+    <div class="sec-badge">0 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">📋</div><div><div class="soon-title">Form Completion</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🗂️</div><div><div class="soon-title">Multiple Choice</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🗺️</div><div><div class="soon-title">Map & Plan Labelling</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔢</div><div><div class="soon-title">Sentence Completion</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- SPEAKING -->
+<div class="section-group" id="speaking" data-section="speaking">
+  <div class="section-header">
+    <div class="sec-icon" style="background:color-mix(in srgb,#8b5cf6 15%,transparent);">🗣️</div>
+    <div class="sec-info">
+      <div class="sec-title">Speaking</div>
+      <div class="sec-desc">Part 1, 2, 3 — fluency, coherence ও lexical resource strategies</div>
+    </div>
+    <div class="sec-badge">0 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">🙋</div><div><div class="soon-title">Part 1 — Introduction</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">💭</div><div><div class="soon-title">Part 2 — Cue Card</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🏆</div><div><div class="soon-title">Part 3 — Discussion</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🎤</div><div><div class="soon-title">Fluency & Pronunciation</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+<!-- GRAMMAR -->
+<div class="section-group" id="grammar" data-section="grammar">
+  <div class="section-header">
+    <div class="sec-icon" style="background:color-mix(in srgb,#f59e0b 15%,transparent);">📚</div>
+    <div class="sec-info">
+      <div class="sec-title">Grammar & Vocabulary</div>
+      <div class="sec-desc">Common grammar rules, word lists, collocations ও Bangla অর্থ</div>
+    </div>
+    <div class="sec-badge">0 live · 4 soon</div>
+  </div>
+  <div class="card-grid">
+    <div class="soon-card"><div class="soon-icon">🔤</div><div><div class="soon-title">Academic Word List</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">⏰</div><div><div class="soon-title">Tense Quick Reference</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">🔗</div><div><div class="soon-title">Linking Words Guide</div><div class="soon-sub">Coming soon</div></div></div>
+    <div class="soon-card"><div class="soon-icon">📖</div><div><div class="soon-title">Collocations Guide</div><div class="soon-sub">Coming soon</div></div></div>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="fl-brand">BandUpBD</div>
+    <div class="fl-name">Habibur Rahman Sajal</div>
+    <div class="fl-desc">সব guide বাংলা অর্থসহ তৈরি করা হয়েছে IELTS পরীক্ষার্থীদের জন্য। নতুন guide যোগ হলে এই page-এ update হবে।</div>
+  </div>
+  <div class="footer-right">
+    <div class="fr-label">TARGET SCORE</div>
+    <div class="band-pill">Band 8+</div>
+  </div>
+</footer>
+
+<script>
+/* ── DATA ── */
+const guides = [
+  { title:'Line Graph — Complete Writing Guide', desc:'V1/V2/V3 vocabulary, tense rules, sentence types, active/passive — Bangla অর্থসহ', tag:'Line Graph', section:'writing', url:'Writing Task 1/line-graph.html', live:true },
+  { title:'Bar Chart Guide', desc:'Bar chart description vocabulary and structures', tag:'Bar Chart', section:'writing', url:'#', live:false },
+  { title:'Pie Chart Guide', desc:'Pie chart writing guide with Bangla', tag:'Pie Chart', section:'writing', url:'#', live:false },
+  { title:'Table Description', desc:'Table comparison vocabulary and structures', tag:'Table', section:'writing', url:'#', live:false },
+  { title:'Process Diagram', desc:'Process description vocabulary and passive voice', tag:'Process', section:'writing', url:'#', live:false },
+  { title:'Map Description', desc:'Map change description guide', tag:'Map', section:'writing', url:'#', live:false },
+  { title:'Opinion Essay', desc:'Opinion essay structure and vocabulary', tag:'Task 2', section:'writing', url:'#', live:false },
+  { title:'Discussion Essay', desc:'Both views essay with Bangla examples', tag:'Task 2', section:'writing', url:'#', live:false },
+  { title:'Problem-Solution Essay', desc:'Problem solution essay structure', tag:'Task 2', section:'writing', url:'#', live:false },
+  { title:'True/False/Not Given', desc:'TFNG strategy and techniques', tag:'Reading', section:'reading', url:'#', live:false },
+  { title:'Matching Headings', desc:'Matching headings tips and tricks', tag:'Reading', section:'reading', url:'#', live:false },
+  { title:'Form Completion', desc:'Listening form completion strategy', tag:'Listening', section:'listening', url:'#', live:false },
+  { title:'Part 1 Introduction', desc:'Speaking part 1 answers and vocabulary', tag:'Speaking', section:'speaking', url:'#', live:false },
+  { title:'Part 2 Cue Card', desc:'Cue card structure and vocabulary', tag:'Speaking', section:'speaking', url:'#', live:false },
+  { title:'Linking Words Guide', desc:'All linking words with Bangla meaning', tag:'Grammar', section:'grammar', url:'#', live:false },
+];
+
+/* ── LIVE COUNT & PROGRESS ── */
+const liveGuides = guides.filter(g=>g.live).length;
+const total = guides.length;
+document.getElementById('liveCount').textContent = liveGuides;
+document.getElementById('progressFill').style.width = Math.round(liveGuides/total*100)+'%';
+document.getElementById('progressPct').textContent = liveGuides+' / '+total;
+
+/* ── FILTER ── */
+function filterSection(val, el) {
+  document.querySelectorAll('.chip').forEach(c=>{c.classList.remove('active');c.classList.add('inactive');});
+  el.classList.add('active'); el.classList.remove('inactive');
+  document.querySelectorAll('.section-group').forEach(sg=>{
+    if(val==='all') sg.classList.remove('hidden');
+    else sg.classList.toggle('hidden', sg.dataset.section !== val);
+  });
+}
+
+/* ── SEARCH ── */
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('searchInput').focus(),50);
+}
+function closeSearch(e){
+  if(e && e.target!==document.getElementById('searchOverlay')) return;
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchResults').innerHTML='<div class="search-empty">Start typing to search all guides…</div>';
+}
+function doSearch(q){
+  const res = document.getElementById('searchResults');
+  if(!q.trim()){res.innerHTML='<div class="search-empty">Start typing to search all guides…</div>';return;}
+  const matches = guides.filter(g=>
+    g.title.toLowerCase().includes(q.toLowerCase())||
+    g.desc.toLowerCase().includes(q.toLowerCase())||
+    g.tag.toLowerCase().includes(q.toLowerCase())||
+    g.section.toLowerCase().includes(q.toLowerCase())
+  );
+  if(!matches.length){res.innerHTML='<div class="search-empty">কোনো guide পাওয়া যায়নি।</div>';return;}
+  res.innerHTML = matches.map(g=>`
+    <a class="search-result-item" href="${g.live?g.url:'#'}" ${!g.live?'onclick="return false"':''}>
+      <div class="sri-tag">${g.tag.toUpperCase()} ${g.live?'· LIVE':'· COMING SOON'}</div>
+      <div class="sri-title">${g.title}</div>
+      <div class="sri-desc">${g.desc}</div>
+    </a>`).join('');
+}
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openSearch();}
+  if(e.key==='Escape') closeSearch();
+});
+
+/* ── ANIMATE BARS ON SCROLL ── */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{if(en.isIntersecting){en.target.style.width=en.target.dataset.w;obs.unobserve(en.target);}});
+},{threshold:.3});
+document.querySelectorAll('.bt-bar-fill').forEach(b=>{
+  b.dataset.w=b.style.width; b.style.width='0';
+  obs.observe(b);
+});
+</script>
+</body>
+</html>
